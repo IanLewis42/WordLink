@@ -1,0 +1,90 @@
+WordLink thoughts/notes
+------------------------
+
+main loop
+
+while(1)
+{
+	if (searching)	//looking for a chain - don't lock up
+	  search_a_bit()
+
+	if event()
+		if (touch)	//handle touch events, update logic
+		
+		if(timer && queue empty)
+			draw_screen()	//global var knows whether we're in title, menu or game
+	endif		
+}
+
+title-> menu or game
+
+menu
+  difficulty - choices for:
+    word length, (4,5,6,random)
+    chain length, (same as word length, 4,5,6,random)
+    letter change more than once (
+    random on each one?
+  
+game
+  draw:
+    - status bar: points, hints, levels, 
+    - chain 
+      1:start word
+      2:start word (greyed)
+      3:blank
+      4:blank
+       :.....
+      n:last
+    - alphabet (smaller - 2x13? 3x9? 4*7?)
+    
+  drag letter from alphabet to '2'
+  if in dict
+  	2 -> 'solid' with new letter, 3-> 2(greyed) - points++, hints++
+  else ???
+    not sure how to indicate.....
+    OK, put (green?) tick for correct, plus sound
+    put red tick for wrong for ~0.5s, then revert (plus sound, plus vibrarte?)
+  if 
+  
+  
+typedef enum
+{
+  START = 0,
+  CURRENT = 1,
+  BLANK = 2,
+  LAST = 3,
+}
+WordStatusType;
+
+  
+struct
+{
+  char cpu[7]
+  char user[7]
+  WordStatusType status;
+}
+ChainEntryType;
+
+struct 
+{
+  ChainEntryType word[7];
+  ChainEntryType* current;
+  int length; //?
+  int word_length;
+}
+ChainType;
+
+ChainType Chain;
+
+usage:
+ Chain.length
+ Chain.word_length
+ Chain.current->user	//freaky.....
+ 
+ 
+initchain();
+
+* Clean up dict....
+
+
+
