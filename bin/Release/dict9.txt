@@ -1992,8 +1992,6 @@ basketfuls
 bassetlaw
 bassoonist
 bassoonists
-bastardise
-bastardised
 bathhouse
 bathhouses
 bathrobes
@@ -22973,7 +22971,6 @@ shostakovich
 shouldered
 shouldering
 shoulders
-shouldn't
 shovelful
 shovelfuls
 shovelled

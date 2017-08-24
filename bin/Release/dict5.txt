@@ -621,7 +621,6 @@ camel
 cameo
 camps
 camus
-can't
 canal
 candy
 caned
@@ -1117,7 +1116,6 @@ dolly
 dolts
 domed
 domes
-don't
 donor
 dooms
 doone
@@ -1878,7 +1876,6 @@ haydn
 hayes
 hazel
 hazes
-he'll
 heads
 heady
 heals
@@ -2075,9 +2072,7 @@ islam
 islay
 isles
 islet
-isn't
 issue
-it'll
 italy
 itchy
 items
@@ -2162,7 +2157,6 @@ kathy
 katie
 kayak
 kazan
-kbyte
 keats
 kebab
 keels
@@ -2777,7 +2771,6 @@ nouns
 novae
 novel
 noway
-nspcc
 nudes
 nudge
 numbs
@@ -3164,7 +3157,6 @@ putty
 pygmy
 pylon
 qatar
-qjump
 quack
 quads
 quaff
@@ -3555,7 +3547,6 @@ shark
 sharp
 shave
 shawl
-she'd
 sheaf
 shear
 sheba
@@ -3712,7 +3703,6 @@ slunk
 slurp
 slurs
 slush
-sluts
 slyer
 slyly
 smack
@@ -4505,9 +4495,6 @@ waxed
 waxen
 waxes
 wayne
-we'll
-we're
-we've
 weald
 weals
 weans
@@ -4605,7 +4592,6 @@ wolff
 woman
 wombs
 women
-won't
 wonts
 woods
 woody
@@ -4648,9 +4634,6 @@ wyman
 xenon
 xerox
 xrays
-xviii
-xxiii
-xxvii
 yacht
 yahoo
 yalta
@@ -4675,7 +4658,6 @@ yokel
 yokes
 yolks
 yolky
-you'd
 young
 yours
 youth

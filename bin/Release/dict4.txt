@@ -85,7 +85,6 @@ arid
 arks
 arms
 army
-arse
 arts
 arty
 ashy
@@ -485,10 +484,8 @@ dept
 desk
 dewy
 dhow
-dhss
 dial
 dice
-dick
 died
 dies
 diet
@@ -798,8 +795,6 @@ gave
 gawk
 gays
 gaze
-gcmg
-gcse
 gear
 geld
 gems
@@ -916,8 +911,6 @@ hawk
 hays
 haze
 hazy
-he'd
-he's
 head
 heal
 heap
@@ -1013,8 +1006,6 @@ hyde
 hymn
 hype
 hypo
-i'll
-i've
 iain
 iamb
 iata
@@ -1055,8 +1046,6 @@ iron
 isbn
 isis
 isle
-it'd
-it's
 itch
 item
 ivan
@@ -1122,7 +1111,6 @@ jute
 juts
 kale
 kate
-kcmg
 keel
 keen
 keep
@@ -1426,7 +1414,6 @@ mush
 musk
 must
 mute
-mynd
 myth
 nabs
 nags
@@ -1625,7 +1612,6 @@ pins
 pint
 pipe
 pips
-piss
 pith
 pits
 pitt
@@ -1684,7 +1670,6 @@ prom
 prop
 pros
 prow
-psbr
 pubs
 puck
 puff
@@ -1709,12 +1694,8 @@ putt
 pyre
 qdos
 qimi
-qmon
 qpac
-qptr
 qram
-qtxt
-qtyp
 quad
 quag
 quay
@@ -1919,7 +1900,6 @@ shed
 shim
 shin
 ship
-shit
 shod
 shoe
 shoo
@@ -1980,7 +1960,6 @@ slow
 slug
 slum
 slur
-slut
 smog
 smug
 smut
@@ -2320,7 +2299,6 @@ wave
 wavy
 waxy
 ways
-we'd
 weak
 weal
 wean
@@ -2404,18 +2382,10 @@ wraf
 wrap
 wren
 writ
-wrns
-wrvs
 wynn
 xian
-xiii
 xmas
 xray
-xvii
-xxii
-xxiv
-xxix
-xxvi
 yaks
 yale
 yams
@@ -2433,7 +2403,6 @@ yell
 yelp
 yeti
 yews
-ymca
 yobs
 yoga
 yogi
@@ -2445,7 +2414,6 @@ your
 yoyo
 yuan
 yule
-ywca
 zany
 zaps
 zeal

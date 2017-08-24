@@ -283,8 +283,6 @@ huh
 hum
 hun
 hut
-i'd
-i'm
 ian
 iba
 ice
@@ -494,7 +492,6 @@ pun
 pup
 pus
 put
-qed
 qls
 rac
 raf
@@ -672,13 +669,6 @@ wow
 wry
 wsw
 wye
-xii
-xiv
-xix
-xvi
-xxi
-xxv
-xxx
 yah
 yak
 yam

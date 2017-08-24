@@ -256,7 +256,6 @@ arctic
 ardent
 ardlui
 ardour
-aren't
 arenas
 argent
 argued
@@ -1795,7 +1794,6 @@ dicier
 dicing
 dictum
 diddle
-didn't
 dieppe
 diesel
 dieted
@@ -2951,7 +2949,6 @@ hacker
 hackle
 haddon
 hadley
-hadn't
 haggai
 haggis
 haggle
@@ -3533,7 +3530,6 @@ kansas
 kaolin
 karate
 kayaks
-kbytes
 kebabs
 keeled
 keenly
@@ -4023,7 +4019,6 @@ mayday
 mayfly
 mayhap
 mayhem
-mayn't
 mayors
 mazers
 mazing
@@ -4823,8 +4818,6 @@ piques
 piracy
 pirate
 pisces
-pissed
-pisses
 pistol
 piston
 pitchy
@@ -5790,7 +5783,6 @@ shakes
 shalom
 shamed
 shames
-shan't
 shandy
 shanks
 shanty
@@ -5807,7 +5799,6 @@ shaven
 shaver
 shaves
 shawls
-she'll
 sheafs
 shears
 sheath
@@ -6595,7 +6586,6 @@ texans
 thames
 thanet
 thanks
-that's
 thatch
 thawed
 thebes
@@ -6610,7 +6600,6 @@ theory
 therms
 theses
 thesis
-they'd
 thieve
 thighs
 things
@@ -7261,7 +7250,6 @@ warsaw
 washed
 washer
 washes
-wasn't
 wasted
 waster
 wastes
@@ -7467,7 +7455,6 @@ wrongs
 wyvern
 xavier
 xerxes
-xxviii
 xylene
 yachts
 yahweh
@@ -7499,9 +7486,6 @@ yokels
 yoking
 yonder
 yoruba
-you'll
-you're
-you've
 youths
 yvette
 yvonne

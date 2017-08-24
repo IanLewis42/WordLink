@@ -107,6 +107,3 @@ vc
 vi
 wc
 we
-xi
-xv
-xx

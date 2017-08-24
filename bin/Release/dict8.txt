@@ -707,7 +707,6 @@ basketry
 bassinet
 bassoons
 basswood
-bastards
 bastions
 batching
 bathrobe
@@ -1967,7 +1966,6 @@ couchant
 couching
 coughers
 coughing
-couldn't
 councils
 counsels
 counters
@@ -5972,7 +5970,6 @@ ossifies
 otiosely
 otterton
 ottomans
-oughtn't
 outboard
 outbound
 outbreak
@@ -7934,7 +7931,6 @@ slumbers
 slumming
 slumping
 slurring
-sluttish
 smacking
 smallest
 smallish
@@ -9990,7 +9986,6 @@ worships
 worthier
 worthily
 worthing
-wouldn't
 wounding
 wrangled
 wrangler

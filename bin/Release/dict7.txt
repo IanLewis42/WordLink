@@ -619,7 +619,6 @@ bashing
 baskets
 basking
 bassoon
-bastard
 basting
 bastion
 batavia
@@ -2615,7 +2614,6 @@ dodgems
 dodgers
 dodging
 doeskin
-doesn't
 doffing
 dogfish
 dogging
@@ -4165,7 +4163,6 @@ hauling
 haunchs
 haunted
 haunter
-haven't
 havered
 hawkbit
 hawkers
@@ -5702,7 +5699,6 @@ mustang
 mustard
 musters
 mustily
-mustn't
 mutable
 mutably
 mutants
@@ -5906,7 +5902,6 @@ nurture
 nuzzled
 nuzzles
 nymphal
-o'clock
 oakwood
 oarlock
 oarsman
@@ -6446,7 +6441,6 @@ piquant
 piraeus
 pirated
 pirates
-pissing
 pistols
 pistons
 pitched
@@ -8790,7 +8784,6 @@ thaxted
 theatre
 theorem
 therapy
-there's
 thereat
 thereby
 therein
@@ -8801,9 +8794,6 @@ thereto
 thermal
 thermic
 thermos
-they'll
-they're
-they've
 thiamin
 thicken
 thicker
@@ -9770,7 +9760,6 @@ wending
 wenlock
 wensley
 weobley
-weren't
 western
 wetland
 wetness
