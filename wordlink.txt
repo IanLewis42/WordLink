@@ -86,5 +86,33 @@ initchain();
 
 * Clean up dict....
 
+to do
+------
+- start screen
+- icon
+- config
+- scoring
+  - coins for completing chain? and for each word?
+  - use coins to buy new backgrounds, tiles etc.
+- save score on exit
+- check handling of stop drawing events.
+- hints. more complicated than it sounds.....
+ - just have 'solve' - (lightbulb)
+ - when complete, put message for 5s, then go to next
+- 2 dictionaries - use 1_2_all_freq.txt as basis for code list, big one as check list.....
+- speedup - try:
+  - read once, count
+  - malloc count * (wordlength+1) bytes (returns ptr to char?)
+  - remember count!
+  - scan dict by ptr += wl+1
+  - spot dict end by count.
+- Segoe MDL2 Assets has light bulb, setting cog (EA80, E713)
 
+google material design light bulb e90f, settings e8b8 back e15e
 
+hmmmm.... icons drawn directly as png? i.e. not via pov......
+white partly transparent circle, black icon for solve (light bulb) back (arrow) settings (cog) just black icon for thinking (brain)
+
+Different approach to speedup: don't do it on the fly, write some (PC) code to make all possible lists from dict,
+  store first/last words in file (or entire chain?) entire chain would allow hints. 
+  No need for separators, 4x4 chain = 16 bytes, 5x5 = 25
