@@ -26,46 +26,32 @@
 
 #define BLANK_TILE 26
 
-//messages
-char* messageptr;
-char msg_blank[] = " ";
-char msg_start[] = "Drag tiles to make new words.";
-char msg_success[] = "Well done!";
-char msg_notindict[] = "Sorry, I don't know that word.";
-char msg_chainfail[] = "That doesn't complete the chain!";
+void draw_background(void);
+void draw_buttons(void);
+void draw_coins(void);
+void draw_message(void);
+void draw_timeout(void);
+void draw_more_buttons(void);
 
 void draw_screen(ScreenType screen, float scale)
 {
     ALLEGRO_TRANSFORM transform;
     ALLEGRO_COLOR tint;
+    ALLEGRO_COLOR White = al_map_rgb(255, 255, 255);
+    ALLEGRO_COLOR Red   = al_map_rgba(192, 0, 0, 128);
+    ALLEGRO_COLOR Black = al_map_rgba(0, 0, 0, 128);
     int w,h,i,j;
     int bgx,bgy,bgw,bgh;    //background
     int x,y;                //temporary coords.
     int letter_x,letter_y;
+    char temp[5];
 
-    if (halted) return;
+    if (State.halted) return;
 
 	w = al_get_display_width(display);
     h = al_get_display_height(display);
 
 	al_set_clipping_rectangle(0, 0, w, h);
-
-	bgw = al_get_bitmap_width(background);
-	bgh = al_get_bitmap_height(background);
-
-    al_clear_to_color(al_map_rgb(0, 0, 0));
-
-    w*=inv_scale;
-    h*=inv_scale;
-
-
-	 for(bgy=0 ; bgy<h ; bgy+=bgh)
-    {
-        for(bgx=0 ; bgx<w ; bgx+=bgw)
-        {
-            al_draw_bitmap(background,bgx,bgy,0);
-        }
-    }
 
     al_identity_transform(&transform);  		            /* Initialize transformation. */
     al_scale_transform(&transform, scale,scale);
@@ -76,9 +62,9 @@ void draw_screen(ScreenType screen, float scale)
     //al_draw_tinted_scaled_bitmap(ttglogo,tint,0,0,640,640,w-400,-80,400,400,0);
 
 
-    switch (screen)
+    switch (State.screen)
     {
-        case START:
+        case START: //TTG logo
             al_clear_to_color(al_map_rgb(255, 255, 255));
             w = al_get_display_width(display);
             h = al_get_display_height(display);
@@ -87,11 +73,98 @@ void draw_screen(ScreenType screen, float scale)
             al_draw_bitmap(ttglogo,(w-bgw)/2,(h-bgh)/2,0);
         break;
 
-        case MENU:
+        case HOME:
+            draw_background();
+
+            y = CHAIN_Y+TILE;
+            x = ((al_get_display_width(display)/2)*State.inv_scale )- 2*TILE;
+
+            strncpy(temp,"word",5);
+            for (i=0 ; i<4 ; i++)
+            {
+                letter_x = ((temp[i] - 'a') % 5) * TILE;
+                letter_y = ((temp[i] - 'a') / 5) * TILE;
+                al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
+                x+=TILE;
+            }
+
+            x = ((al_get_display_width(display)/2)*State.inv_scale )- 2*TILE;
+            y+=TILE;
+            strncpy(temp,"link",5);
+            for (i=0 ; i<4 ; i++)
+            {
+                letter_x = ((temp[i] - 'a') % 5) * TILE;
+                letter_y = ((temp[i] - 'a') / 5) * TILE;
+                al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
+                x+=TILE;
+            }
+
+            draw_coins();
+            draw_buttons();
+            draw_more_buttons();
+        break;
+
+        case COLOURS:
+            draw_background();
+            switch(State.ColourItem)
+            {
+            case BG:
+                for (i=0 ; i<State.max_bgs ; i++)
+                {
+                    x = CHAIN_X+300*(i%4);
+                    y = CHAIN_Y+300*(i/4);
+
+                    y+=Mouse.scrollb;
+
+                    if (backgrounds[i] != NULL)
+                    {
+                        int ybox = al_get_bitmap_height(backgrounds[i])+15;
+                        if (ybox > 270)
+                            ybox = 270;
+                        al_draw_filled_rounded_rectangle(x-15,y-15,x+270,y+ybox,10,10,(State.bg==i)?Red:Black);
+                        al_draw_bitmap_region(backgrounds[i],0,0,255,255,x,y,0);
+                    }
+                    else
+                    {
+                        al_draw_filled_rectangle(x-15,y-15,x+270,y+270,al_map_rgba(128,128,128,128));
+                        al_draw_bitmap_region(icons,ICON_LOCK*TILE,0,TILE,TILE,x+50,y+50,0);
+                    }
+                }
+            break;
+            case ALPHA:
+                for (i=0 ; i<State.max_alphas ; i++)
+                {
+                    x = CHAIN_X+210*(i%6);
+                    y = CHAIN_Y+210*(i/6);
+
+                    y+=Mouse.scrolla;
+
+                    if (alphas[i] != NULL)
+                    {
+                        al_draw_filled_rounded_rectangle(x-5,y-5,x+138,y+138,10,10,(State.alpha==i)?Red:Black);
+                        al_draw_bitmap_region(alphas[i],0,0,130,130,x,y,0);
+                    }
+                    else
+                    {
+                        al_draw_filled_rectangle(x-5,y-5,x+135,y+135,al_map_rgba(128,128,128,128));
+                        al_draw_bitmap_region(icons,ICON_LOCK*TILE,0,TILE,TILE,x,y,0);
+                    }
+                }
+            break;
+            }
+            draw_buttons();
+            draw_coins();
+            draw_message();
+
+            al_draw_textf(small_font, (State.ColourItem==BG)?Red:White, CHAIN_X + 1*300,  0, ALLEGRO_ALIGN_CENTRE, "Backgrounds");
+            al_draw_textf(small_font, (State.ColourItem!=BG)?Red:White, CHAIN_X + 3*300,  0, ALLEGRO_ALIGN_CENTRE, "Letters");
         break;
 
         case GAME:
+            draw_background();
+
             //al_hold_bitmap_drawing(TRUE);
+
             //draw chain
             y = CHAIN_Y;
             for (i=0 ; i<Chain.length+1 ; i++)
@@ -102,7 +175,15 @@ void draw_screen(ScreenType screen, float scale)
                     for (j = 0; j < Chain.word_length; j++) {
                         letter_x = ((Chain.word[i].cpu[j] - 'a') % 5) * TILE;
                         letter_y = ((Chain.word[i].cpu[j] - 'a') / 5) * TILE;
-                        al_draw_bitmap_region(letters, letter_x, letter_y, TILE, TILE, x, y, 0);
+
+
+                        if ((i > 0) && (Chain.word[i].cpu[j] != Chain.word[i-1].cpu[j]))
+                            al_draw_tinted_bitmap_region(alpha, al_map_rgba(0, 128, 192, 225), letter_x, letter_y, TILE, TILE, x, y,0);
+                        else
+                            al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
+
+
+                        //al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
                         x += TILE;
                     }
                 }
@@ -115,7 +196,15 @@ void draw_screen(ScreenType screen, float scale)
                             for (j = 0; j < Chain.word_length; j++) {
                                 letter_x = ((Chain.word[i].cpu[j] - 'a') % 5) * TILE;
                                 letter_y = ((Chain.word[i].cpu[j] - 'a') / 5) * TILE;
-                                al_draw_bitmap_region(letters, letter_x, letter_y, TILE, TILE, x, y, 0);
+
+                                if ((i > 0) && State.success && (Chain.word[i].cpu[j] != Chain.word[i-1].user[j]))
+                                    al_draw_tinted_bitmap_region(alpha, al_map_rgba(0, 128, 192, 225), letter_x, letter_y, TILE, TILE, x, y,0);
+                                else
+                                    al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
+
+
+
+                                //al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
                                 x += TILE;
                             }
 //                            y += TILE;
@@ -125,30 +214,31 @@ void draw_screen(ScreenType screen, float scale)
                                 letter_x = ((Chain.word[i].user[j] - 'a') % 5) * TILE;
                                 letter_y = ((Chain.word[i].user[j] - 'a') / 5) * TILE;
                                 if (Chain.word[i].user[j] != Chain.word[i-1].user[j])
-                                    al_draw_tinted_bitmap_region(letters, al_map_rgba(0, 128, 192, 225), letter_x, letter_y, TILE, TILE, x, y,0);
+                                    al_draw_tinted_bitmap_region(alpha, al_map_rgba(0, 128, 192, 225), letter_x, letter_y, TILE, TILE, x, y,0);
                                 else
-                                    al_draw_bitmap_region(letters, letter_x, letter_y, TILE, TILE, x, y, 0);
+                                    al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
                                 x += TILE;
                             }
                           //  y += TILE;
                         break;
                         case BLANK:
                             for (j = 0; j < Chain.word_length; j++) {
-                                al_draw_tinted_bitmap_region(blank, al_map_rgba(128, 128, 128, 128), 0, 0, TILE, TILE, x, y,0);
+                                //al_draw_tinted_bitmap_region(blank, al_map_rgba(128, 128, 128, 128), 0, 0, TILE, TILE, x, y,0);
+                                al_draw_tinted_bitmap_region(alpha, al_map_rgba(128, 128, 128, 128), 0, 6*TILE, TILE, TILE, x, y,0);
                                 x += TILE;
                             }
                           //  y += TILE;
                         break;
                         case CURRENT:
                             for (j = 0; j < Chain.word_length; j++) {
-                                if (error_timer)
+                                if (Timer[TIMER_ERROR].value)
                                     tint = al_map_rgba(128, 0, 0, 192);
                                 else
                                     tint = al_map_rgba(128, 128, 128, 128);
 
                                 letter_x = ((Chain.word[i].user[j] - 'a') % 5) * TILE;
                                 letter_y = ((Chain.word[i].user[j] - 'a') / 5) * TILE;
-                                al_draw_tinted_bitmap_region(letters, tint, letter_x, letter_y, TILE, TILE, x, y, 0);
+                                al_draw_tinted_bitmap_region(alpha, tint, letter_x, letter_y, TILE, TILE, x, y, 0);
                                 x += TILE;
                             }
                            // y += TILE;
@@ -157,60 +247,158 @@ void draw_screen(ScreenType screen, float scale)
                 }
                 y += TILE;
             }
+
             //draw alphabet
-            al_draw_bitmap(letters,ALPHA_X, ALPHA_Y,0);
-            /*
-            y = ALPHA_Y;
-            for (i=0 ; i<ALPHA_ROWS ; i++)
-            {
-                x=ALPHA_X;
-                for (j=0 ; j<ALPHA_COLS ; j++)
-                {
-                    al_draw_bitmap_region(letters,(i*ALPHA_COLS+j)*TILE,0,TILE,TILE,x,y,0);
-                    x+=TILE;
-                    if (i*ALPHA_COLS+j == 25) break;
-                }
-                y+=TILE;
-            }*/
-            //draw buttons
-            x = BUTTON_X;
-            y = BUTTON_Y;
-            for (i=0 ; i< NUM_BUTTONS ; i++) {
-                al_draw_bitmap_region(buttons, i * TILE, 0, TILE, TILE, x, y, 0);
-                y+= TILE;
-            }
+            al_draw_bitmap_region(alpha,0,0,TILE*5,TILE*6,ALPHA_X, ALPHA_Y,0);
 
             //draw dragged tile
             if (Mouse.tile != NO_TILE)
             {
                 letter_x = (Mouse.tile % 5) * TILE;
                 letter_y = (Mouse.tile / 5) * TILE;
-                al_draw_bitmap_region(letters,letter_x,letter_y,TILE,TILE,Mouse.x-TILE/2,Mouse.y-TILE/2,0);
+                al_draw_bitmap_region(alpha,letter_x,letter_y,TILE,TILE,Mouse.x-TILE/2,Mouse.y-TILE/2,0);
             }
-            //buttons:
-            //reset, back one, hint??, solve? settings
-
-            //score??
-
-            if (success)
-            {
-                //draw 'next' button
-            }
-
-            al_identity_transform(&transform);  		            /* Initialize transformation. */
-            //al_scale_transform(&transform, scale,scale);
-            al_use_transform(&transform);
-
-            w = al_get_display_width(display);
-            h = al_get_display_height(display);
-            //message
-            al_draw_textf(font, al_map_rgb(255, 255, 255),w/2, 0.85*h,  ALLEGRO_ALIGN_CENTRE, "%s",messageptr);
             al_hold_bitmap_drawing(FALSE);
-        break;
 
+            draw_buttons();
+            draw_message();
+            draw_coins();
+
+            if (State.gametype == TIMED)//score and timer bar, for timed play
+            {
+                al_draw_filled_rectangle(CHAIN_X + TILE, 0, CHAIN_X+TILE+(8*TILE*Timer[TIMER_GAME].value/1000),TILE/2,Red);
+                al_draw_textf(small_font, al_map_rgb(255, 255, 255),CHAIN_X+8*TILE, 0,  ALLEGRO_ALIGN_LEFT, "%d",State.score);
+
+                if (State.timeout)
+                {
+                    draw_timeout();
+                    draw_more_buttons();
+                }
+            }
+
+        break;
     }
+
+    al_identity_transform(&transform);  		            /* Initialize transformation. */
+    al_use_transform(&transform);
 
     al_flip_display();
 
     return;
+}
+
+void draw_background(void)
+{
+    int bgx,bgy, bgw, bgh, w , h;
+
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+
+	w = al_get_display_width(display);
+    h = al_get_display_height(display);
+    w*=State.inv_scale;
+    h*=State.inv_scale;
+
+	bgw = al_get_bitmap_width(background);
+	bgh = al_get_bitmap_height(background);
+
+    for(bgy=0 ; bgy<h ; bgy+=bgh)
+    {
+        for(bgx=0 ; bgx<w ; bgx+=bgw)
+        {
+            al_draw_bitmap(background,bgx,bgy,0);
+        }
+    }
+}
+
+
+void draw_buttons(void)
+{
+    int i;
+    float x = BUTTON_X;
+    float y = BUTTON_Y;
+    for (i=0 ; Buttons[i].icon != NO_ICON ; i++) {
+        al_draw_filled_circle(x+TILE/2,y+TILE/2,TILE/2,al_map_rgba(128,128,128,128));
+        al_draw_bitmap_region(icons, Buttons[i].icon * TILE, 0, TILE, TILE, x, y, 0);
+        y+= TILE*1.1;
+    }
+}
+
+void draw_more_buttons(void)
+{
+    int i;
+    float x = BUTTON2_X;
+    float y = BUTTON2_Y;
+    for (i=0 ; Buttons2[i].icon != NO_ICON ; i++) {
+        al_draw_filled_circle(x+TILE/2,y+TILE/2,TILE/2,al_map_rgba(128,128,128,128));
+        al_draw_bitmap_region(icons, Buttons2[i].icon * TILE, 0, TILE, TILE, x, y, 0);
+        x+= TILE*1.1;
+    }
+}
+
+void draw_coins(void)
+{
+    static int coinframe = 0;
+
+    coinframe++;
+    if (coinframe == 60)
+        coinframe = 0;
+
+    int w = al_get_display_width(display);
+    w*=State.inv_scale;
+
+    al_draw_filled_rectangle(0,0,w,TILE/2,al_map_rgba(0,0,0,128));
+    al_draw_bitmap_region(coin,(coinframe)*50,0,50,50,65,10,0);
+    al_draw_textf(small_font, al_map_rgb(255, 255, 255),TILE, 0,  ALLEGRO_ALIGN_LEFT, "%d",State.display_coins);
+    //al_draw_textf(small_font, al_map_rgb(255, 255, 255),TILE, TILE/2,  ALLEGRO_ALIGN_LEFT, "%d",Mouse.scroll);
+}
+
+void draw_message(void)
+{
+    static int alpha=0;
+
+    if (Message.count)
+    {
+        int w = al_get_display_width(display);
+
+        int sx = SCREENX;
+
+        w*=State.inv_scale;
+        if (Message.count == 60)
+            alpha = 0;
+
+        Message.count--;
+
+        if(Message.count < 15)
+        {
+            Message.x += w/15;
+            alpha -= 10;
+        }
+
+        if (Message.count >= 45)
+        {
+            Message.x += w/15;
+            alpha +=10;
+        }
+        //Message.x = 0;
+        al_draw_filled_rectangle(0,TILE*7.5,w,TILE*8,al_map_rgba(0,0,0,alpha));
+        al_draw_textf(small_font, al_map_rgb(255, 255, 255),w/2+Message.x, TILE*7.5,  ALLEGRO_ALIGN_CENTRE, "%s",Message.message);
+    }
+}
+
+void draw_timeout(void)
+{
+    int w = al_get_display_width(display)  * State.inv_scale;
+    int h = al_get_display_height(display) * State.inv_scale;
+
+    al_draw_filled_rounded_rectangle(w/4,CHAIN_Y,3*w/4,CHAIN_Y+6*TILE,50,50,al_map_rgba(0,0,0,192));
+
+    al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, CHAIN_Y+1*TILE, ALLEGRO_ALIGN_CENTRE, "TIME'S UP!");
+    al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, CHAIN_Y+2*TILE, ALLEGRO_ALIGN_CENTRE, "You scored %d",State.score);
+    if (State.score >= State.highscore)
+    {
+        al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, CHAIN_Y+3*TILE, ALLEGRO_ALIGN_CENTRE, "New Highscore!");
+    }
+    else
+        al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, CHAIN_Y+3*TILE, ALLEGRO_ALIGN_CENTRE, "Highscore: %d",State.highscore);
+
 }

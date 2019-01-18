@@ -41,45 +41,88 @@
 //#define SCREENX 800 //540
 //#define SCREENY 400 //960
 
-ALLEGRO_FILE* dict;
+ALLEGRO_FILE* dictfile;
 long seek[26];
 int change_map,tried_map;
-int easy = TRUE,fail,success=FALSE,found=FALSE;
-int error_timer,success;
+int easy = TRUE,fail,found=FALSE;
+int searching=FALSE;
+//int game_timer = 0;error_timer=0,success_timer = 0,success;
 char word[10],message[100],debug_tries[10],temp[10];
 
-float scale, inv_scale;
-
-int halted = 0;
-
-ChainType Chain;
+DictType dict4, dict5;              //structures for referncing dictionaries in ram. 4 & 5 letter words
+DictType* dict;                     //pointer to current dictionary
+ChainType Chain;                    //word chain
 MouseType Mouse;
-ScreenType Screen;
+StateType State;
 CommandType Command = NO_COMMAND;
+MessageType Message;
+TimerType Timer[NUM_TIMERS] = { {45,0,CMD_FORWARD},     //Success timer
+                                {30,0,CMD_REVERT},      //Error timer
+                                {1000,0,CMD_TIMEOUT}};  //Timed game timer
+//buttons for each screen type
+ButtonType HomeButtons[] = {{ICON_INFO, CMD_INFO}, {ICON_COLOURS, CMD_COLOURS}, {ICON_PLAY, CMD_PLAY}, {ICON_TIMED, CMD_TIMED}, {NO_ICON, NO_COMMAND}};
+ButtonType ColoursButtons[] = {{ICON_HOME, CMD_HOME}, {NO_ICON, NO_COMMAND}};
+ButtonType SettingsButtons[] = {{ICON_HOME, CMD_HOME}, {NO_ICON, NO_COMMAND}};
+ButtonType GameButtons[] = {{ICON_HOME, CMD_HOME}, {ICON_SOLVE, CMD_SOLVE},  {ICON_UNDO, CMD_BACK}, {NO_ICON, NO_COMMAND}};
+ButtonType TimedGameButtons[] = {{ICON_HOME, CMD_HOME}, {ICON_UNDO, CMD_BACK}, {NO_ICON, NO_COMMAND}};
+ButtonType SolvedButtons[] = {{ICON_HOME, CMD_HOME}, {ICON_NEXT, CMD_FORWARD},  {ICON_UNDO, CMD_BACK}, {NO_ICON, NO_COMMAND}};
+ButtonType* Buttons = HomeButtons;
 
-void newword(void);
-void initchain(void);
-int findchain(void);
-ChainEntryType* findword(ChainEntryType* current_word, int pos);
-ChainEntryType* findword2(ChainEntryType* current_word, int pos);
+//extra buttons
+ButtonType HomeButtons2[]   = {{ICON_PLAY, CMD_PLAY},  {ICON_TIMED, CMD_TIMED}, {NO_ICON, NO_COMMAND}};
+ButtonType TimeOutButtons[] = {{ICON_TIMED, CMD_TIMED},{ICON_HOME, CMD_HOME},   {NO_ICON, NO_COMMAND}};
+ButtonType* Buttons2 = HomeButtons2;
 
+//messages
+char* messageptr;
+char msg_blank[] = " ";
+char msg_start[] = "Drag tiles to make new words.";
+char msg_start_timed[] = "Complete the chain before time runs out.";
+char msg_success[] = "Well done!";
+char msg_notindict[] = "Sorry, I don't know that word.";
+char msg_chainfail[] = "That doesn't complete the chain!";
+char msg_nocoins[] = "Sorry, you don't have enough coins.";
+char msg_costs[] = "Everything costs 100 coins.";
+char msg_timeout[] = "Time's Up!";
 
+//allegro vars
 ALLEGRO_DISPLAY *display;
-ALLEGRO_FONT *font;         //debug
-float font_scale;
+//ALLEGRO_FONT *font;
+ALLEGRO_FONT *small_font;
 ALLEGRO_BITMAP *background;
-ALLEGRO_BITMAP *letters;
-ALLEGRO_BITMAP *blank;
-ALLEGRO_BITMAP *buttons;
+ALLEGRO_BITMAP *alpha;
+ALLEGRO_BITMAP *icons;
 ALLEGRO_BITMAP *ttglogo;
+ALLEGRO_BITMAP *coin;
+ALLEGRO_BITMAP *backgrounds[100];    //used in select screen
+ALLEGRO_BITMAP *alphas[100];          //used in select screen
 //Sounds
 ALLEGRO_VOICE *voice;
 ALLEGRO_MIXER *mixer;
 ALLEGRO_SAMPLE *clunk;
 
+ALLEGRO_PATH *path;
+
 ALLEGRO_FILE* logfile;
+ALLEGRO_FILE* statefile;
+
+//local prototypes
+void newword(void);
+void initchain(void);
+int findchain(void);
+int makedict(DictType* dict, int wlen);
+ChainEntryType* findword(ChainEntryType* current_word, int pos);
+ChainEntryType* findword2(ChainEntryType* current_word, int pos);
+void init_state(void);
+void save_state(void);
+void start_timer(TimerIdxType idx);
+void stop_timer(TimerIdxType idx);
+void update_timers(void);
+void update_coins(void);
+
 
 #ifndef ANDROID
+int game(int argc, char **argv );
 int main(int argc, char **argv) {
     game (argc, argv);
     return 0;
@@ -87,28 +130,28 @@ int main(int argc, char **argv) {
 #endif
 
 int game(int argc, char **argv )
-//int main(int argc, char* argv[])
 {
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
     ALLEGRO_EVENT event;
+
     int tries=0;
-    int searching=FALSE,new_event;
+    int new_event;
     int count = 0;
     int error = 0;
+    char temp[10];
 
     error = al_init();  /* Init Allegro 5 + addons. */
 
-#ifndef ANDROID
 	//set path
-    ALLEGRO_PATH *path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+    al_set_standard_file_interface();
+    path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
 	al_change_directory(al_path_cstr(path, '/'));  // change the working directory
 
 	//open logfile in executable directory
 	logfile = al_fopen("logfile.txt","w");
     al_fprintf(logfile,"%s %s\n",NAME,VERSION);
     al_fprintf(logfile,"Init Allegro\n");
-#endif // ANDROID
 
     //init other bits of allegro
     error = al_init_image_addon();
@@ -118,33 +161,19 @@ int game(int argc, char **argv )
     error = al_install_mouse();
     error = al_install_keyboard();
     error = al_install_audio();
-     error = al_init_acodec_addon();
+    error = al_init_acodec_addon();
 #ifdef ANDROID
     al_android_set_apk_fs_interface();
 #endif
 
-
-	//al_fprintf(logfile,"Init Allegro done\n");
-
-    //al_fprintf(logfile,"Generate change-one-letter word puzzle\n");
-
     srand(time(0));
-
-    //Screen = START;
-
-#ifndef ANDROID
 	//change directory to data, where all resources live (images, fonts, sounds and text files)
 	al_append_path_component(path, "data");
 	al_change_directory(al_path_cstr(path, '/'));  // change the working directory
-#endif // ANDROID
 
-
-    //al_fprintf (logfile,"\nSTART:%s (%d)\n",word,Chain.word_length);
 
 #ifdef _WIN32
     al_set_new_display_flags(ALLEGRO_RESIZABLE);//ALLEGRO_WINDOWED);// | ALLEGRO_RESIZABLE);
-    //#define SCREENX 800
-    //#define SCREENY 400
 #endif // _WIN32
 #ifdef ANDROID
     al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE,ALLEGRO_REQUIRE);
@@ -156,28 +185,14 @@ int game(int argc, char **argv )
     //display = al_create_display(SCREENX, SCREENY);
     display = al_create_display(1920/2, 1080/2);
 
-    scale = 1.0*((float)al_get_display_width(display)/SCREENX);
-    inv_scale = 1.0/scale;
+    calc_scale();
 
     al_set_window_title(display, NAME);
 
     al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);// + ALLEGRO_MIN_LINEAR);
 
-    //if ((icon = al_load_bitmap("gs_icon.png")) == NULL)  al_fprintf(logfile,"gs_icon.png load fail\n");
-    //if (icon) al_set_display_icon(display, icon);
-
-    //APK FILE INTERFACE!!!!!!
-
-    //LoadFonts();
-	//al_fprintf(logfile,"Creating Events\n");
 	timer = al_create_timer(1.0 / 30);
 	queue = al_create_event_queue();
-	//if (logfile) al_fflush(logfile);
-
-
-    //if (al_install_touch_input())
-    //    al_fprintf(logfile,"Init allegro touch input\n");
-
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -190,82 +205,59 @@ int game(int argc, char **argv )
     al_register_event_source(queue, al_get_mouse_event_source());
 #endif
 
-
     Mouse.tile = NO_TILE;
-/*
-    if ((background = al_load_bitmap("background.png")) == NULL)
-        al_fprintf(logfile,"background.jpg load fail");
-    if ((letters = al_load_bitmap("letters.png")) == NULL)
-        al_fprintf(logfile,"letters.png load fail");
-    if ((buttons = al_load_bitmap("buttons.png")) == NULL)
-        al_fprintf(logfile,"buttons.png load fail");
-    if ((ttglogo = al_load_bitmap("tootired.png")) == NULL)
-        al_fprintf(logfile,"tootired.png load fail");
-*/
 
 #ifdef ANDROID
     al_android_set_apk_file_interface();
 #endif
 
-    font = al_load_font("Audiowide-Regular.ttf",50,0);
-    al_draw_text(font, al_map_rgba(0,0,0,0), 0, 0, 0, "!.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+    //font = al_load_font("Audiowide-Regular.ttf",100,0);
+    small_font = al_load_font("Audiowide-Regular.ttf",50,0);
+    al_draw_text(small_font, al_map_rgba(0,0,0,0), 0, 0, 0, "!.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");    //pre-load characters to speed up writing
 
-    int max_bmp = al_get_display_option(display, ALLEGRO_MAX_BITMAP_SIZE);
+    //int max_bmp = al_get_display_option(display, ALLEGRO_MAX_BITMAP_SIZE);
 
-    background = al_load_bitmap("background.png");
-    letters = al_load_bitmap("letters.png");
-    blank = al_load_bitmap("blank.png");
-    buttons = al_load_bitmap("buttons.png");
+    icons = al_load_bitmap("icons_130.png");
     ttglogo = al_load_bitmap("tootired.png");
+    coin = al_load_bitmap("coin.png");
 
-    al_start_timer(timer);
+    State.screen = START;
+    draw_screen(State.screen, 1); //draw TTG logo screen ASAP
 
-    newword();
-/*
+    init_state();                   //open and read from file: current & unlocked backgrounds/tiles, coins etc.
 
-    int i = 0;
-    while(1)
-    {
-       int w,h,bgw,bgh;
+    background = backgrounds[State.bg];
+    alpha = alphas[State.alpha];
 
+    al_start_timer(timer);          //allegro
 
-        al_wait_for_event(queue,&event);
+    makedict(&dict4, 4);            //open text file dictionary, copy into RAM
+    makedict(&dict5, 5);
 
-        if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
-            al_acknowledge_resize(display);
-        else {
-            al_clear_to_color(al_map_rgb(i & 0xff, i & 0xff, i & 0xff));
-            //w = al_get_display_width(display);
-            //h = al_get_display_height(display);
-            //bgw = al_get_bitmap_width(ttglogo);
-            //bgh = al_get_bitmap_height(ttglogo);
-            //al_draw_bitmap(ttglogo,(w-bgw)/2,(h-bgh)/2,0);
+    newword();                      //pick a start word
 
-            i += 10;
+    searching = TRUE;
+    State.screen = HOME;
 
-            al_flip_display();
-        }
-    }
-*/
     while (1)
     {
         //do a bit of looking for a chain, if we're looking
         if (searching)
         {
             tries++;
-            sprintf(debug_tries,"%d",tries);
-            messageptr = debug_tries;
-            if (tries == 20)
+            //sprintf(debug_tries,"%d",tries);
+            //messageptr = debug_tries;
+            if (tries == 20)            //give up and try a new start word
             {
                 newword();
                 tries = 0;
             }
             else
             {
-                if (findchain())
+                if (findchain())    //returns true when found a complete chain
                 {
-                    searching = FALSE;
-                    Chain.word[Chain.length].status = LAST;
+                    searching = FALSE;                          //so stop looking
+                    Chain.word[Chain.length].status = LAST;     //and set up stuff
                     Chain.current = &Chain.word[1];
                     Chain.current->status = CURRENT;
                     strncpy(Chain.word[0].user, Chain.word[0].cpu,Chain.word_length+1);
@@ -273,14 +265,14 @@ int game(int argc, char **argv )
                     strncpy(Chain.word[Chain.length].user, Chain.word[Chain.length].cpu,Chain.word_length+1);
                 }
             }
-            if (!al_is_event_queue_empty(queue))
+            if (!al_is_event_queue_empty(queue))    //check for events so we're responsive, but don't wait.
             {
                 al_get_next_event(queue, &event);
                 new_event = TRUE;
             }
         }
 
-        else
+        else    //not looking, so idle until event
         {
             al_wait_for_event(queue,&event);
             new_event = TRUE;
@@ -294,22 +286,21 @@ int game(int argc, char **argv )
             {
                 case ALLEGRO_EVENT_DISPLAY_RESIZE:
                     al_acknowledge_resize(display);
-                    scale = 1.0*((float)al_get_display_width(display)/SCREENX);
-                    inv_scale = 1/scale;
+                    calc_scale();
                 break;
                 case ALLEGRO_EVENT_DISPLAY_CLOSE:
                     exit(0);
                 break;
                 case  ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:   //we've been sidelined by the user/os
                         al_acknowledge_drawing_halt(display);   //acknowledge
-                        halted = true;                          //flag to drawing routines to do nothing
+                        State.halted = true;                          //flag to drawing routines to do nothing
                         al_stop_timer(timer);                   //no more timer events, so we should do nothing, saving battery
                         //al_set_default_voice(NULL);             //destroy voice, so no more sound events, ditto.
                         //al_destroy_voice(voice);
                 break;
                 case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING: //we've been restored
                         al_acknowledge_drawing_resume(display); //ack
-                        halted = false;                         //remove flag
+                        State.halted = false;                         //remove flag
                         al_start_timer(timer);                  //restart timer
                         //voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);  //restart audio
                         //al_attach_mixer_to_voice(mixer, voice);
@@ -319,15 +310,7 @@ int game(int argc, char **argv )
                         exit(0);
                     else if (event.keyboard.keycode == ALLEGRO_KEY_ENTER)
                     {
-                        Command = FORWARD;
-                        /*
-                        newword();
-                        success = FALSE;
-                        //message[0]=0;
-                        messageptr = msg_blank;
-                        searching = TRUE;
-                        tries = 0;
-                         */
+                        Command = CMD_FORWARD;
                     }
                 break;
 
@@ -355,25 +338,20 @@ int game(int argc, char **argv )
 
                 //redraw on timer - draw fn handles start, menu, game screens?
                 case ALLEGRO_EVENT_TIMER:
-                    if (count <= 30)
+                    /*if (count <= 1)
                     {
-                        draw_screen(START, 1);
                         count++;
-                        if (count == 30)
-                            searching = TRUE;
-                    }
-                    else if ((al_event_queue_is_empty(queue)) || searching)
-                        draw_screen(GAME, scale);
-
-                    if (error_timer)
-                    {
-                        error_timer--;
-                        if (error_timer == 0)
+                        if (count == 1)
                         {
-                            strncpy(Chain.current->user,((Chain.current)-1)->user,Chain.word_length+1);
-                            messageptr = msg_blank;
+                            searching = TRUE;
+                            State.screen = HOME;
                         }
                     }
+                    else */if ((al_event_queue_is_empty(queue)) || searching)
+                        draw_screen(State.screen, State.scale);
+
+                    update_coins();
+                    update_timers();
                 break;
                 default:
                 break;
@@ -383,29 +361,110 @@ int game(int argc, char **argv )
         //check for commands
         switch (Command)
         {
-            case SUCCESS:
-                success = TRUE;
-                messageptr = msg_success;
-            break;
-            case FORWARD:
-                if (success || Chain.show)
+            case CMD_HOME:                      //home button pressed
+                State.screen = HOME;            //set screen to draw
+                Buttons = HomeButtons;          //set buttons
+                Buttons2 = HomeButtons2;
+                State.timeout = FALSE;
+                /*if (State.score > State.highscore)
                 {
-                    newword();
-                    success = FALSE;
-                    //message[0]=0;
-                    messageptr = msg_blank;
-                    searching = TRUE;
-                    tries = 0;
-                    draw_screen(GAME, scale);
+                    State.highscore = State.score;
+                    save_state();
+                }*/
+            break;
+            case CMD_INFO:
+                //screen = SETTINGS;
+                //Buttons = SettingsButtons;
+            break;
+            case CMD_COLOURS:                   //colour button - go to colour unlocking / selection screen
+                State.screen = COLOURS;
+                Buttons = ColoursButtons;
+                //Mouse.scroll = 0;
+                post_message(msg_costs);
+            break;
+            case CMD_BG:                        //'background' option pressed in 'colour' screen
+                State.ColourItem = BG;
+            break;
+            case CMD_ALPHA:                     //'letters' option....
+                State.ColourItem = ALPHA;
+            break;
+            case CMD_PLAY:                      //'play normal' button
+                State.screen = GAME;
+                State.gametype = NORMAL;        //'normal' (i.e. not timed) play
+                Buttons = GameButtons;
+                newword();
+                post_message(msg_start);        //show start message
+            break;
+            case CMD_TIMED:                     //play timed button
+                State.screen = GAME;
+                State.gametype = TIMED;         //set gametype
+                State.timeout = FALSE;
+                /*if (State.score > State.highscore)
+                {
+                    State.highscore = State.score;
+                    save_state();
+                }*/
+                State.score = 0;
+                Buttons = TimedGameButtons;
+                newword();
+                start_timer(TIMER_GAME);        //start timer
+                post_message(msg_start_timed);        //NEED A DIFFERENT MESSAE!!!
+            break;
+            case CMD_TIMEOUT:                   //triggered by running out of time in timed play
+                Chain.show = TRUE;
+                State.timeout = TRUE;
+                Buttons2 = TimeOutButtons;
+                if (State.score > State.highscore)
+                {
+                    State.highscore = State.score;
+                    save_state();
+                }
+                //post_message(msg_timeout);
+                //show overlay. no message??
+            break;
+            case CMD_SUCCESS:                           //completed chain
+                State.success = TRUE;
+                State.coins += 10;                      //so give coins
+                State.coins_up = 10;                    //used for 'counting up' effect in display
+                State.score += Timer[TIMER_GAME].value; //add score (only used in timed play)
+                start_timer(TIMER_SUCCESS);             //start timer which will go to next chain on expiry
+                stop_timer(TIMER_GAME);
+                post_message(msg_success);
+                save_state();                           //to remember coins
+            break;
+            case CMD_REVERT:                            //error, so put current word back to what it was.
+                strncpy(Chain.current->user,((Chain.current)-1)->user,Chain.word_length+1);
+            break;
+            case CMD_FORWARD:                           //multiple uses? investigate / split?
+                newword();
+                State.success = FALSE;
+                if (State.gametype == TIMED)
+                    Buttons = TimedGameButtons;
+                else
+                    Buttons = GameButtons;
+                stop_timer(TIMER_SUCCESS);
+                //searching = TRUE;
+                //tries = 0;
+                draw_screen(GAME, State.scale);
+                if (State.gametype == TIMED)
+                    start_timer(TIMER_GAME);
+            break;
+            case CMD_SOLVE:                             //'solve' button
+                if (State.coins >= 10)                  //if enough money
+                {
+                    Chain.show = TRUE;                  //show solution
+                    Buttons = SolvedButtons;            //change buttons
+                    State.coins_down = 10;              //take coins
+                    State.coins -= 10;
+                    save_state();                       //and remember
                 }
                 else
                 {
-                    Chain.show = TRUE;
+                    start_timer(TIMER_ERROR);           //not enough money
+                    post_message(msg_nocoins);          //so show message
                 }
-
             break;
-            case BACK:
-                //copy word forward from valid->current.??
+            case CMD_BACK:                              //'undo' button
                 if (Chain.current->status != LAST)
                     Chain.current->status = BLANK;       //wipe current word
 
@@ -414,91 +473,293 @@ int game(int argc, char **argv )
                 if (Chain.current->status == FIRST)     //if we've hit the start
                     Chain.current++;                    //bump it on again
 
-                Chain.current->status = CURRENT;    //set this one to be current.
+                Chain.current->status = CURRENT;        //set this one to be current.
 
                 Chain.current--;                        //bump pointer back
                 strncpy(temp,Chain.current->user,Chain.word_length+1);
                 Chain.current++;
                 strncpy(Chain.current->user,temp,Chain.word_length+1);
+                State.success = FALSE;
             break;
 
             case NO_COMMAND:
             default:
             break;
         }
-        Command = NO_COMMAND;
+        Command = NO_COMMAND;   //only process once.....
     }
 
-    al_fclose(dict);
+    free(dict4.base);           //
+    free(dict5.base);
     return 0;
+}
+
+void start_timer(TimerIdxType idx)                  //software timers, all count down to zero, so init to start value
+{
+    Timer[idx].value = Timer[idx].start_value;
+}
+
+void stop_timer(TimerIdxType idx)                   //set to zero effectively stops.
+{
+    Timer[idx].value = 0;
+}
+
+void update_timers(void)
+{
+    TimerIdxType i;
+
+    for (i=0 ; i<NUM_TIMERS ; i++)                 //for each timer,  check for zero,
+    {
+        if (Timer[i].value)                         //if it's non-zero,
+        {
+            Timer[i].value--;                       //decrement,
+
+            if (Timer[i].value == 0)                //if it's now expired,
+            {
+                Command = Timer[i].command;         //issue the associated command.
+            }
+        }
+    }
+}
+
+void update_coins(void)
+{
+    if (State.coins_up)             //count up to give animated display
+    {
+        State.display_coins++;
+        State.coins_up--;
+    }
+    if (State.coins_down)           //count down
+    {
+        if (State.coins_down > 10)  //fast if there's along way left to go
+        {
+            State.coins_down -=5;
+            State.display_coins-=5;
+        }
+        else
+        {
+            State.display_coins--;
+            State.coins_down--;
+        }
+    }
+}
+
+void calc_scale(void)       //work out scaling for graphics
+{
+    float xscale = 1.0*((float)al_get_display_width(display)/SCREENX);
+    float yscale = 1.0*((float)al_get_display_height(display)/SCREENY);
+
+    if (xscale < yscale)
+        State.scale = xscale;
+    else
+        State.scale = yscale;
+
+    State.inv_scale = 1.0/State.scale;
+}
+
+void init_state(void)   //read stuff from file
+{
+    int i,j;
+    ALLEGRO_FILE* tempfile;
+#ifdef ANDROID
+    char pathstr[100];
+    //char *pathptr;
+    al_set_standard_file_interface();
+    path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);    //android
+    //ALLEGRO_DEBUG(#std ": %s", al_path_cstr(path, '/'));
+    sprintf(pathstr,"%s",al_path_cstr(path, '/'));
+    al_change_directory(al_path_cstr(path, '/'));  // change the working directory
+    //pathptr = al_get_current_directory();
+#endif
+
+    State.coins = 0;    //default values
+    State.coins_up = 0;
+    State.coins_down = 0;
+    State.bg = 0;
+    State.alpha = 0;
+    State.bgs[0] = 1;
+    State.bgs[1] = 0;
+    State.bgs[2] = 0;
+    State.bgs[3] = 0;
+    State.alphas[0] = 1;
+    State.alphas[1] = 0;
+    State.alphas[2] = 0;
+    State.alphas[3] = 0;
+    State.gametype = NORMAL;
+    State.ColourItem = BG;
+
+    statefile = al_fopen("state.txt","r");     //try to open the file
+    if (statefile)
+    {
+        al_fgets(statefile,temp,10);        //coins
+        State.coins = strtol(temp,NULL,10);
+
+        al_fgets(statefile,temp,10);        //current bg
+        State.bg = strtol(temp,NULL,10);
+
+        al_fgets(statefile,temp,10);        //current alphabet
+        State.alpha = strtol(temp,NULL,10);
+
+        for (i=0 ; i<4 ; i++)                   //unlocked backgrounds
+        {
+            if (al_fgets(statefile,temp,10))
+                State.bgs[i] = strtol(temp,NULL,10);
+        }
+        for (i=0 ; i<4 ; i++)                   //unlocked tilesets/alphabets/letters/ whatever you call them.
+        {
+            if (al_fgets(statefile,temp,10))
+                State.alphas[i] = strtol(temp,NULL,10);
+        }
+        al_fgets(statefile,temp,10);        //coins
+        State.highscore = strtol(temp,NULL,10);
+        al_fclose(statefile);
+    }
+
+#ifdef ANDROID
+    al_android_set_apk_file_interface();
+#endif
+
+    State.display_coins = State.coins;                  //display the right number
+
+    //run through the bitmasks from the state file to find the unlocked backgrounds / tiles
+    for (i=0 ; i<4 ; i++)                               //4 words
+    {
+        for (j=0 ; j<32 ; j++)                          //32 bits in each
+        {
+                char bstr[20],tstr[20];
+
+                sprintf(bstr,"bg/bg%03d.jpg",i*32+j);   //try to open a background image file
+                tempfile = al_fopen(bstr,"r");
+                if (tempfile)                           //if successful,
+                {
+                    State.max_bgs++;                    //inc count
+                    al_fclose(tempfile);                //and close again
+                }
+                sprintf(tstr,"tiles/tiles%02d.png",i*32+j); //repear for tile/alphabet files
+                tempfile = al_fopen(tstr,"r");
+                if (tempfile)
+                {
+                    State.max_alphas++;
+                    al_fclose(tempfile);
+                }
+
+                if ((State.bgs[i] >> j) & 1)            //bit = 1 for unlocked images
+                {
+                    backgrounds[i*32+j] = al_load_bitmap(bstr); //so load. we have a big array of pointers.....
+                }
+
+                if ((State.alphas[i] >> j) & 1)
+                {
+                    alphas[i*32+j] = al_load_bitmap(tstr);
+                }
+        }
+    }
+}
+
+
+void save_state(void)
+{
+    int i;
+#ifdef ANDROID
+    char pathstr[100];
+    char *pathptr;
+    al_set_standard_file_interface();
+    ALLEGRO_PATH *path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);    //android
+    //ALLEGRO_DEBUG(#std ": %s", al_path_cstr(path, '/'));
+    sprintf(pathstr,"%s",al_path_cstr(path, '/'));
+    al_change_directory(al_path_cstr(path, '/'));  // change the working directory
+    pathptr = al_get_current_directory();
+#endif
+
+    statefile = al_fopen("state.txt","w");
+    al_fprintf(statefile,"%d\n",State.coins);
+    al_fprintf(statefile,"%d\n",State.bg);
+    al_fprintf(statefile,"%d\n",State.alpha);
+    for (i=0 ; i<4 ; i++)
+        al_fprintf(statefile,"%d\n",State.bgs[i]);
+    for (i=0 ; i<4 ; i++)
+        al_fprintf(statefile,"%d\n",State.alphas[i]);
+    al_fprintf(statefile,"%d\n",State.highscore);
+    al_fclose(statefile);
+
+#ifdef ANDROID
+    al_android_set_apk_file_interface();
+#endif
+}
+
+void post_message(char* ptr)
+{
+    Message.message = ptr;
+    Message.count = 60;         //60 ticks = 2 seconds
+    Message.x = -1*State.inv_scale*al_get_display_width(display);     //start offscreen to the left.
 }
 
 void newword()
 {
-    int chosen,count=0,i;
-    char name[20], dict_word[50];
+    int chosen;//,count=0;//,i;
+    //char name[20];//, dict_word[50];
 
-    Chain.word_length = 4+rand()%2;
+    Chain.word_length = 4+rand()%2;                     //decide word length
     Chain.length = Chain.word_length;
 
     initchain();
 
-    if (dict != NULL) al_fclose(dict);
+    if (Chain.word_length == 4)                         //choose dictionary
+        dict = &dict4;
+    else
+        dict = &dict5;
 
-    //printf("length = %d",Chain.word_length);
-    sprintf(name,"dict%d.txt",Chain.word_length);
-    dict = al_fopen(name,"r");
-    if (dict == NULL)
-    {
-        printf("Failed to open dictionary file:%s\n",name);
-        return;
-    }
-
-    //while (fgets(dict_word,50,dict) != NULL) count++;        //count words
-    while (al_fgets(dict,dict_word,50) != NULL) count++;
-    //rewind(dict);
-    al_fseek(dict, 0, SEEK_SET);
-
-    chosen = rand()%count;                              //pick random word
-    //printf("count = %d, chosen = %d\n",count,chosen);
-    //rewind(dict);
-    al_fseek(dict, 0, SEEK_SET);
-
-    for (i=0 ; i<chosen ; i++)
-        //fgets(word,50,dict);
-        al_fgets(dict,word,50);
-
-    word[strcspn(word, "\n")] = 0;      //trim cr/lf
-    //printf("word = %s\n",word);
-    //rewind(dict);
-    al_fseek(dict, 0, SEEK_SET);
-
-    //work out seek positions for each letter
-    for (i=0 ; i<26 ; i++)
-    {
-        while(1)
-        {
-            seek[i] = al_ftell(dict);          //mark position
-            //fgets(dict_word,50,dict);       //read word
-            al_fgets(dict,dict_word,50);
-            if (dict_word[0] == i + 'a')    //if it starts with the right letter, break so we increment i
-            {
-                 //printf("%s",dict_word);
-                 break;
-            }
-            if (dict_word[0] > i + 'a') //we've 'skipped ahead, meaning there are no words starting with this letter
-            {
-                break;                  //break anyway; we'll never have a word starting with this letter in a chain,
-            }                           // if user puts one in, we won't find it regardless.
-        }
-    }
+    chosen = rand()%dict->count;                                      //pick random word
+    strncpy(word, dict->base+(chosen*(dict->len)), dict->len);   //copy random word from ram dict to 'word'
+    word[strcspn(word, "\n")] = 0;                              //trim cr/lf
 
     Chain.current = &Chain.word[0];
     strncpy(Chain.current->cpu,word,Chain.word_length+1);
 
     Chain.word[0].status = FIRST;
-    //Chain.word[Chain.length].status = LAST;
+
+    searching = TRUE;
+
     return;
+}
+
+int makedict(DictType* dict, int wlen)
+{
+    char name[10];
+    char dict_word[10];
+    int count = 0;//,i;
+
+    sprintf(name,"dict%d.txt",wlen);
+    dictfile = al_fopen(name,"r");
+    if (dictfile == NULL)
+    {
+        printf("Failed to open dictionary file:%s\n",name);
+        return 0;
+    }
+
+    while (al_fgets(dictfile,dict_word,10) != NULL) count++;    //count the words (1 word per line)
+
+    dict->count = count;                                        //init count
+    dict->len = wlen+1;                                         // and entry length
+    dict->base = malloc(count * dict->len);                     //allocate enough ram
+    dict->current = dict->base;                                 //init pointer
+
+    if (al_fclose(dictfile) == 0)
+    {
+        printf("Failed to open dictionary file:%s\n",name);
+        return 0;
+    }
+    dictfile = al_fopen(name,"r");
+
+    while (al_fgets(dictfile,dict_word,10) != NULL)
+    {
+        strncpy(dict->current,dict_word,dict->len);         //copy word from file to ram dictionary
+        dict->current += dict->len;                         //bump pointer
+    }
+
+    al_fclose(dictfile);
+
+    return 1;
 }
 
 void initchain(void)
@@ -573,7 +834,7 @@ int findchain(void)
 }
 
 /*
-Alternative approach:
+Alternative approach: (original below, compiled out)
 Run through entire dictionary once. For each entry, check whether it differs from original word
 by exactly one letter. If so, store in array (need big array..... could limit to (say)100 matches
 though, I guess)
@@ -584,15 +845,16 @@ ChainEntryType* findword2(ChainEntryType* current_word, int pos)
 {
     wordtype matches[100];    //matches
     ChainEntryType* wordptr;
-    int i,j=0,fail,chosen;//,i;
+    int i,j=0,k,fail,chosen;//,i;
     char dict_word[50];
 
-    //rewind(dict);
-    al_fseek(dict,0,SEEK_SET);
+    dict->current = dict->base;
 
-    //while (fgets(dict_word,50,dict) != NULL)        //get word, exit on eof
-    while (al_fgets(dict,dict_word,50) != NULL)        //get word, exit on eof
+    for (k=0 ; k<dict->count ; k++)
     {
+        strncpy(dict_word,dict->current,dict->len);
+        dict->current += dict->len;
+
         //check for only difference in position 'pos'
         fail=0;
         for (i=0 ; i<Chain.word_length ; i++)
@@ -713,21 +975,17 @@ wordtype* findword(wordtype* current_word, int pos)
 }
 #endif
 
+//check for word in dictionary. Only used to validate user input
 int isindict(char* word, int length)
 {
-    char dict_word[50];
+    int i;
+    dict->current = dict->base; //rewind to start of dictionary
 
-    al_fseek(dict,seek[word[0]-'a'],SEEK_SET);         //send dictionary to start of this letter
-
-    //while (fgets(dict_word,50,dict) != NULL)        //get word, exit on eof
-    while (al_fgets(dict,dict_word,50) != NULL)        //get word, exit on eof
+    for ( i=0 ; i<dict->count ; i++ )   //run through dictionary
     {
-        if (dict_word[0] != word[0])                //if the first letter doesn't match, we must be past, so skip
-            return 0;
-
-        if (strncmp(word, dict_word, length) == 0)  //if the words match we have a valid word
+        if (strncmp(word, dict->current, Chain.word_length) == 0)  //if the words match we have a valid word
               return 1;
+        dict->current += dict->len; //bump pointer
     }
-    return 0;
-
+    return 0;   //got to the end, no match, so fail.
 }

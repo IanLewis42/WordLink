@@ -36,19 +36,14 @@ ambler
 ambles
 amused
 amuses
-angela
 angels
 angled
 angler
 angles
-angola
 ankles
 annuls
 anuses
 arbour
-arched
-archer
-arches
 ardour
 argent
 aright
@@ -77,7 +72,6 @@ bagger
 bagman
 bagmen
 bailed
-bailey
 baited
 bakers
 baking
@@ -111,7 +105,6 @@ barman
 barmen
 barnes
 barnet
-barney
 barons
 barred
 barrel
@@ -134,7 +127,6 @@ bather
 bathes
 bathos
 bating
-batley
 batman
 batmen
 batted
@@ -224,7 +216,6 @@ blinks
 bloats
 blocks
 bloods
-bloody
 blooms
 bloomy
 blower
@@ -232,8 +223,6 @@ blurry
 boards
 boasts
 bobbed
-bobbie
-bobbin
 bobble
 bodged
 bodger
@@ -333,8 +322,6 @@ broach
 broads
 bronze
 broods
-broody
-brooks
 brooms
 broths
 browns
@@ -352,7 +339,6 @@ buffed
 buffer
 buffet
 bugged
-bugger
 bugler
 bulged
 bulges
@@ -367,7 +353,6 @@ bunged
 bungle
 bunked
 bunker
-burger
 burgle
 buried
 buries
@@ -428,7 +413,6 @@ caning
 canker
 canned
 canner
-cannon
 canoed
 canoes
 canons
@@ -436,25 +420,19 @@ canted
 canter
 cantle
 canton
-canyon
 capers
 capped
 carbon
 carded
 carder
-careen
 career
 caries
 caring
 carlow
-carmen
 carped
 carper
 carpet
-carson
 carted
-cartel
-carter
 carton
 carved
 carver
@@ -485,8 +463,6 @@ chafer
 chafes
 chairs
 champs
-chance
-change
 charms
 charts
 chased
@@ -603,7 +579,6 @@ cooled
 cooler
 coolie
 cooped
-cooper
 copied
 copier
 copies
@@ -635,7 +610,6 @@ county
 covens
 covers
 covets
-coward
 cowers
 cowing
 cowled
@@ -717,7 +691,6 @@ cutter
 dabbed
 dabble
 dagger
-dalton
 dammed
 damned
 damped
@@ -738,7 +711,6 @@ darker
 darned
 darner
 darted
-darwen
 dashed
 dasher
 dashes
@@ -765,7 +737,6 @@ decays
 decent
 decide
 decked
-decker
 decode
 decoys
 deduce
@@ -793,10 +764,8 @@ denier
 denies
 denise
 denote
-denser
 dental
 dented
-denver
 deport
 depute
 derate
@@ -1043,7 +1012,6 @@ firing
 firmed
 firmer
 fished
-fisher
 fishes
 fisted
 fitted
@@ -1117,7 +1085,6 @@ forked
 formal
 formed
 former
-foster
 fought
 fouled
 founds
@@ -1129,7 +1096,6 @@ framer
 frames
 france
 franck
-franco
 francs
 franks
 frayed
@@ -1219,7 +1185,6 @@ gender
 genial
 gently
 gentry
-gerald
 german
 gibber
 gibbet
@@ -1316,7 +1281,6 @@ gullet
 gulped
 gummed
 gunned
-gunner
 gurgle
 gushed
 gusher
@@ -1328,7 +1292,6 @@ guzzle
 hacked
 hacker
 hackle
-hadley
 haggle
 hailed
 haired
@@ -1348,14 +1311,11 @@ handle
 hanged
 hanger
 hanker
-hanley
 harden
 harder
 harken
-harlow
 harmed
 harped
-harper
 harrow
 hashed
 hasher
@@ -1392,11 +1352,9 @@ hearty
 heated
 heater
 heaved
-heaven
 heaver
 heaves
 heckle
-hector
 hedged
 hedger
 hedges
@@ -1405,7 +1363,6 @@ heeled
 helped
 hemmed
 henges
-henley
 herded
 herder
 herein
@@ -1430,7 +1387,6 @@ hiring
 hissed
 hisses
 hither
-hitler
 hitter
 hiving
 hoarse
@@ -1458,7 +1414,6 @@ honked
 hooded
 hoofed
 hooked
-hooker
 hookey
 hooped
 hooted
@@ -1482,7 +1437,6 @@ housed
 houses
 hovels
 hovers
-howard
 howled
 howler
 huddle
@@ -1497,9 +1451,7 @@ hummed
 hummer
 humour
 humped
-hunger
 hunted
-hunter
 hurdle
 hurled
 hurler
@@ -1552,7 +1504,6 @@ jabbed
 jabber
 jacket
 jagged
-jagger
 jailed
 jailer
 jailor
@@ -1610,7 +1561,6 @@ kettle
 kicked
 kicker
 killed
-killer
 kinder
 kindly
 kingly
@@ -1659,12 +1609,10 @@ launch
 lawman
 lawmen
 lawned
-lawton
 layers
 laying
 layman
 laymen
-layton
 lazing
 leaded
 leaden
@@ -1682,7 +1630,6 @@ leaven
 leaver
 leaves
 lector
-ledger
 ledges
 leered
 legate
@@ -1797,10 +1744,7 @@ lunged
 luring
 lurked
 lusted
-madden
 madder
-madmen
-maggot
 mailed
 majors
 makers
@@ -1817,18 +1761,12 @@ manors
 mantle
 mapped
 marble
-marcel
-margin
-margot
-marine
 marion
 marked
 marker
 market
 marred
 marrow
-martin
-marvin
 mashed
 masher
 mashes
@@ -1857,8 +1795,6 @@ meeker
 meekly
 mellow
 melted
-melvin
-melvyn
 menage
 mended
 mender
@@ -1889,7 +1825,6 @@ milder
 milked
 milker
 milled
-miller
 millet
 milton
 mimers
@@ -1957,12 +1892,10 @@ mulled
 muller
 mullet
 mumble
-mummer
 musing
 muster
 muting
 mutter
-mutton
 muzzle
 mystic
 nabbed
@@ -1990,7 +1923,6 @@ nerved
 nerves
 nested
 nestle
-neston
 netted
 nettle
 nibble
@@ -2026,7 +1958,6 @@ octave
 oiling
 oilman
 oldest
-oliver
 onions
 opened
 opined
@@ -2066,7 +1997,6 @@ paring
 parish
 parity
 parked
-parker
 parley
 parsed
 parser
@@ -2143,10 +2073,8 @@ picket
 pickle
 piddle
 pieces
-pierce
 pilate
 piling
-pillow
 pimple
 pimply
 pinged
@@ -2206,7 +2134,6 @@ popper
 poring
 portal
 ported
-porter
 portly
 posers
 posies
@@ -2308,7 +2235,6 @@ rabies
 racers
 racial
 racing
-racist
 racked
 racket
 radial
@@ -2340,7 +2266,6 @@ rankly
 ranted
 ranter
 raping
-rapist
 rapped
 rapper
 rarely
@@ -2485,7 +2410,6 @@ roller
 romano
 romans
 romany
-romney
 romsey
 roofed
 roofer
@@ -2686,7 +2610,6 @@ sicker
 sickle
 sickly
 siding
-sidney
 sieges
 sieves
 sifted
@@ -2970,7 +2893,6 @@ suffer
 suites
 sulked
 summed
-summer
 sunday
 sunder
 sunned
@@ -2981,7 +2903,6 @@ surest
 surged
 surges
 survey
-sutton
 swamps
 swanks
 swatch
@@ -3024,7 +2945,6 @@ tangle
 tanked
 tanker
 tanned
-tanner
 taoism
 tapers
 taping
@@ -3144,9 +3064,7 @@ topped
 topper
 topple
 torrid
-tosher
 tossed
-tosser
 tosses
 toting
 totted
@@ -3155,7 +3073,6 @@ toughs
 toured
 tourer
 touted
-toward
 towels
 towers
 towing
@@ -3193,7 +3110,6 @@ trusty
 trying
 tubing
 tucked
-tucker
 tugged
 tumble
 tumour
@@ -3295,12 +3211,10 @@ waiver
 waives
 waking
 walked
-walker
 walled
 wallet
 wallop
 wallow
-walter
 walton
 wander
 wangle
@@ -3320,7 +3234,6 @@ warned
 warner
 warped
 warred
-warren
 washed
 washer
 washes
@@ -3354,7 +3267,6 @@ weight
 welded
 welder
 welled
-wellie
 welted
 welter
 wended
@@ -3384,15 +3296,11 @@ wifely
 wigged
 wiggle
 wiggly
-wilder
 wildly
 wilier
 wilily
 wiling
 willed
-willie
-willis
-willow
 wilted
 wilton
 wimple
@@ -3407,7 +3315,6 @@ wining
 winked
 winker
 winner
-winter
 wipers
 wiping
 wirier
@@ -3456,7 +3363,6 @@ yields
 yodels
 yoking
 yonder
-zander
 zapped
 zeroes
 zimmer
