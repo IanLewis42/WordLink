@@ -80,7 +80,7 @@ typedef enum
 {
     START = 0,
     HOME,
-    SETTINGS,
+    INFO,
     COLOURS,
     GAME
 } ScreenType;
@@ -164,6 +164,7 @@ typedef enum
     CMD_BACK,
     CMD_SUCCESS,        //when we solve it
     CMD_REVERT,
+    CMD_RESTART,
 }CommandType;
 
 typedef enum    //order matches icon bitmap
@@ -190,6 +191,7 @@ typedef struct
 {
     int start_value;
     int value;
+    int saved_value;
     CommandType command;
 }TimerType;
 
@@ -198,6 +200,7 @@ typedef enum
     TIMER_SUCCESS = 0,
     TIMER_ERROR,
     TIMER_GAME,
+    TIMER_HOME,
     NUM_TIMERS,
 }TimerIdxType;
 
@@ -216,6 +219,11 @@ extern ALLEGRO_BITMAP *alphas[100];          //used in select screen
 //extern ALLEGRO_FONT *font;
 extern ALLEGRO_FONT *small_font;
 extern ALLEGRO_FILE* logfile;
+
+extern ALLEGRO_SAMPLE_INSTANCE* click_inst;
+extern ALLEGRO_SAMPLE_INSTANCE* misc_menu_inst;
+extern ALLEGRO_SAMPLE_INSTANCE* negative_inst;
+extern ALLEGRO_SAMPLE_INSTANCE* positive_inst;
 
 extern ChainType Chain;
 extern MouseType Mouse;
@@ -248,3 +256,4 @@ int isindict(char* word, int length);
 void post_message(char* ptr);
 void save_state(void);
 void start_timer(TimerIdxType idx);
+void make_info_bitmap(void);

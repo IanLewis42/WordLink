@@ -47,7 +47,7 @@ int change_map,tried_map;
 int easy = TRUE,fail,found=FALSE;
 int searching=FALSE;
 //int game_timer = 0;error_timer=0,success_timer = 0,success;
-char word[10],message[100],debug_tries[10],temp[10];
+char word[10],message[100],debug_tries[10],temp[20];
 
 DictType dict4, dict5;              //structures for referncing dictionaries in ram. 4 & 5 letter words
 DictType* dict;                     //pointer to current dictionary
@@ -56,13 +56,14 @@ MouseType Mouse;
 StateType State;
 CommandType Command = NO_COMMAND;
 MessageType Message;
-TimerType Timer[NUM_TIMERS] = { {45,0,CMD_FORWARD},     //Success timer
-                                {30,0,CMD_REVERT},      //Error timer
-                                {1000,0,CMD_TIMEOUT}};  //Timed game timer
+TimerType Timer[NUM_TIMERS] = { {45,0,0,CMD_FORWARD},     //Success timer
+                                {30,0,0,CMD_REVERT},      //Error timer
+                                {1000,0,0,CMD_TIMEOUT},  //Timed game timer
+                                {110,0,0,CMD_RESTART}};  //home screen animation timer
 //buttons for each screen type
-ButtonType HomeButtons[] = {{ICON_INFO, CMD_INFO}, {ICON_COLOURS, CMD_COLOURS}, {ICON_PLAY, CMD_PLAY}, {ICON_TIMED, CMD_TIMED}, {NO_ICON, NO_COMMAND}};
+ButtonType HomeButtons[] = {{ICON_INFO, CMD_INFO}, {ICON_COLOURS, CMD_COLOURS}, {NO_ICON, NO_COMMAND}};//{ICON_PLAY, CMD_PLAY}, {ICON_TIMED, CMD_TIMED},
 ButtonType ColoursButtons[] = {{ICON_HOME, CMD_HOME}, {NO_ICON, NO_COMMAND}};
-ButtonType SettingsButtons[] = {{ICON_HOME, CMD_HOME}, {NO_ICON, NO_COMMAND}};
+ButtonType InfoButtons[] = {{ICON_HOME, CMD_HOME}, {NO_ICON, NO_COMMAND}};
 ButtonType GameButtons[] = {{ICON_HOME, CMD_HOME}, {ICON_SOLVE, CMD_SOLVE},  {ICON_UNDO, CMD_BACK}, {NO_ICON, NO_COMMAND}};
 ButtonType TimedGameButtons[] = {{ICON_HOME, CMD_HOME}, {ICON_UNDO, CMD_BACK}, {NO_ICON, NO_COMMAND}};
 ButtonType SolvedButtons[] = {{ICON_HOME, CMD_HOME}, {ICON_NEXT, CMD_FORWARD},  {ICON_UNDO, CMD_BACK}, {NO_ICON, NO_COMMAND}};
@@ -99,8 +100,15 @@ ALLEGRO_BITMAP *alphas[100];          //used in select screen
 //Sounds
 ALLEGRO_VOICE *voice;
 ALLEGRO_MIXER *mixer;
-ALLEGRO_SAMPLE *clunk;
+ALLEGRO_SAMPLE *click;
+ALLEGRO_SAMPLE *misc_menu;
+ALLEGRO_SAMPLE *negative;
+ALLEGRO_SAMPLE *positive;
 
+ALLEGRO_SAMPLE_INSTANCE* click_inst;
+ALLEGRO_SAMPLE_INSTANCE* misc_menu_inst;
+ALLEGRO_SAMPLE_INSTANCE* negative_inst;
+ALLEGRO_SAMPLE_INSTANCE* positive_inst;
 ALLEGRO_PATH *path;
 
 ALLEGRO_FILE* logfile;
@@ -117,6 +125,7 @@ void init_state(void);
 void save_state(void);
 void start_timer(TimerIdxType idx);
 void stop_timer(TimerIdxType idx);
+void set_timer(TimerIdxType idx, int value);
 void update_timers(void);
 void update_coins(void);
 
@@ -238,6 +247,36 @@ int game(int argc, char **argv )
 
     searching = TRUE;
     State.screen = HOME;
+    start_timer(TIMER_HOME);
+
+
+    if (al_is_audio_installed())
+    {
+        voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+        mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+        al_set_default_mixer(mixer);
+        al_attach_mixer_to_voice(mixer, voice);
+        al_fprintf(logfile,"Setup audio voice and mixer\n");
+    }
+    else    //get here if no audio available - create mixer to stop rest of code whinging.
+        mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+
+    if ((click = al_load_sample    ("sounds/switch18.wav"))  == NULL) al_fprintf(logfile,"switch18.wav load fail");
+    if ((misc_menu = al_load_sample("sounds/misc_menu.wav")) == NULL) al_fprintf(logfile,"misc_menu.wav load fail");
+    if ((negative = al_load_sample ("sounds/negative_2.wav"))== NULL) al_fprintf(logfile,"negative_2.wav load fail");
+    if ((positive = al_load_sample ("sounds/positive.wav"))  == NULL) al_fprintf(logfile,"positive.wav load fail");
+
+    click_inst = al_create_sample_instance(click);
+    al_attach_sample_instance_to_mixer( click_inst, mixer);
+
+    misc_menu_inst = al_create_sample_instance(misc_menu);
+    al_attach_sample_instance_to_mixer( misc_menu_inst, mixer);
+
+    negative_inst = al_create_sample_instance(negative);
+    al_attach_sample_instance_to_mixer( negative_inst, mixer);
+
+    positive_inst = al_create_sample_instance(positive);
+    al_attach_sample_instance_to_mixer( positive_inst, mixer);
 
     while (1)
     {
@@ -335,19 +374,9 @@ int game(int argc, char **argv )
                 case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
                     mouse_up(event);
                 break;
-
                 //redraw on timer - draw fn handles start, menu, game screens?
                 case ALLEGRO_EVENT_TIMER:
-                    /*if (count <= 1)
-                    {
-                        count++;
-                        if (count == 1)
-                        {
-                            searching = TRUE;
-                            State.screen = HOME;
-                        }
-                    }
-                    else */if ((al_event_queue_is_empty(queue)) || searching)
+                    if ((al_event_queue_is_empty(queue)) || searching)
                         draw_screen(State.screen, State.scale);
 
                     update_coins();
@@ -366,15 +395,12 @@ int game(int argc, char **argv )
                 Buttons = HomeButtons;          //set buttons
                 Buttons2 = HomeButtons2;
                 State.timeout = FALSE;
-                /*if (State.score > State.highscore)
-                {
-                    State.highscore = State.score;
-                    save_state();
-                }*/
+                start_timer(TIMER_HOME);
             break;
             case CMD_INFO:
-                //screen = SETTINGS;
-                //Buttons = SettingsButtons;
+                State.screen = INFO;
+                Buttons = InfoButtons;
+                make_info_bitmap();
             break;
             case CMD_COLOURS:                   //colour button - go to colour unlocking / selection screen
                 State.screen = COLOURS;
@@ -408,9 +434,10 @@ int game(int argc, char **argv )
                 Buttons = TimedGameButtons;
                 newword();
                 start_timer(TIMER_GAME);        //start timer
-                post_message(msg_start_timed);        //NEED A DIFFERENT MESSAE!!!
+                post_message(msg_start_timed);        //NEED A DIFFERENT MESSAGE!!!
             break;
             case CMD_TIMEOUT:                   //triggered by running out of time in timed play
+                al_play_sample_instance( negative_inst);
                 Chain.show = TRUE;
                 State.timeout = TRUE;
                 Buttons2 = TimeOutButtons;
@@ -425,7 +452,7 @@ int game(int argc, char **argv )
             case CMD_SUCCESS:                           //completed chain
                 State.success = TRUE;
                 State.coins += 10;                      //so give coins
-                State.coins_up = 10;                    //used for 'counting up' effect in display
+                State.coins_up += 10;                    //used for 'counting up' effect in display
                 State.score += Timer[TIMER_GAME].value; //add score (only used in timed play)
                 start_timer(TIMER_SUCCESS);             //start timer which will go to next chain on expiry
                 stop_timer(TIMER_GAME);
@@ -447,14 +474,18 @@ int game(int argc, char **argv )
                 //tries = 0;
                 draw_screen(GAME, State.scale);
                 if (State.gametype == TIMED)
-                    start_timer(TIMER_GAME);
+                {
+                    int new_value = Timer[TIMER_GAME].saved_value+500;
+                    if (new_value > 1000) new_value = 1000;
+                    set_timer(TIMER_GAME, new_value);
+                }
             break;
             case CMD_SOLVE:                             //'solve' button
                 if (State.coins >= 10)                  //if enough money
                 {
                     Chain.show = TRUE;                  //show solution
                     Buttons = SolvedButtons;            //change buttons
-                    State.coins_down = 10;              //take coins
+                    State.coins_down += 10;              //take coins
                     State.coins -= 10;
                     save_state();                       //and remember
                 }
@@ -481,7 +512,9 @@ int game(int argc, char **argv )
                 strncpy(Chain.current->user,temp,Chain.word_length+1);
                 State.success = FALSE;
             break;
-
+            case CMD_RESTART:
+                Timer[TIMER_HOME].value = Timer[TIMER_HOME].start_value;
+            break;
             case NO_COMMAND:
             default:
             break;
@@ -499,8 +532,14 @@ void start_timer(TimerIdxType idx)                  //software timers, all count
     Timer[idx].value = Timer[idx].start_value;
 }
 
+void set_timer(TimerIdxType idx, int value)         //init to different value
+{
+    Timer[idx].value = value;
+}
+
 void stop_timer(TimerIdxType idx)                   //set to zero effectively stops.
 {
+    Timer[idx].saved_value = Timer[idx].value;
     Timer[idx].value = 0;
 }
 
@@ -591,26 +630,26 @@ void init_state(void)   //read stuff from file
     statefile = al_fopen("state.txt","r");     //try to open the file
     if (statefile)
     {
-        al_fgets(statefile,temp,10);        //coins
+        al_fgets(statefile,temp,15);        //coins
         State.coins = strtol(temp,NULL,10);
 
-        al_fgets(statefile,temp,10);        //current bg
+        al_fgets(statefile,temp,15);        //current bg
         State.bg = strtol(temp,NULL,10);
 
-        al_fgets(statefile,temp,10);        //current alphabet
+        al_fgets(statefile,temp,15);        //current alphabet
         State.alpha = strtol(temp,NULL,10);
 
         for (i=0 ; i<4 ; i++)                   //unlocked backgrounds
         {
-            if (al_fgets(statefile,temp,10))
+            if (al_fgets(statefile,temp,15))
                 State.bgs[i] = strtol(temp,NULL,10);
         }
         for (i=0 ; i<4 ; i++)                   //unlocked tilesets/alphabets/letters/ whatever you call them.
         {
-            if (al_fgets(statefile,temp,10))
+            if (al_fgets(statefile,temp,15))
                 State.alphas[i] = strtol(temp,NULL,10);
         }
-        al_fgets(statefile,temp,10);        //coins
+        al_fgets(statefile,temp,15);        //coins
         State.highscore = strtol(temp,NULL,10);
         al_fclose(statefile);
     }
@@ -635,7 +674,7 @@ void init_state(void)   //read stuff from file
                     State.max_bgs++;                    //inc count
                     al_fclose(tempfile);                //and close again
                 }
-                sprintf(tstr,"tiles/tiles%02d.png",i*32+j); //repear for tile/alphabet files
+                sprintf(tstr,"tiles/tiles%02d.png",i*32+j); //repeat for tile/alphabet files
                 tempfile = al_fopen(tstr,"r");
                 if (tempfile)
                 {
@@ -653,6 +692,18 @@ void init_state(void)   //read stuff from file
                     alphas[i*32+j] = al_load_bitmap(tstr);
                 }
         }
+    }
+    if (alphas[State.alpha] == NULL)    //if we've somehow screwed up loading / indexing
+    {
+        State.alpha = 0;                //default to first one
+        State.alphas[0] |= 1;           //and make sure that's enabled
+        alphas[0] = al_load_bitmap("tiles/tiles00.png");
+    }
+    if (backgrounds[State.bg] == NULL)    //if we've somehow screwed up loading / indexing
+    {
+        State.bg = 0;                //default to first one
+        State.bgs[0] |= 1;           //and make sure that's enabled
+        backgrounds[0] = al_load_bitmap("bg/bg000.jpg");
     }
 }
 
@@ -711,6 +762,11 @@ void newword()
 
     chosen = rand()%dict->count;                                      //pick random word
     strncpy(word, dict->base+(chosen*(dict->len)), dict->len);   //copy random word from ram dict to 'word'
+
+    //strncpy(word, "flesh",6); //debug force start word
+    //Chain.word_length = 5;    //debug force word length
+    //dict = &dict5;            //debug make sure we use the right dictionary.
+
     word[strcspn(word, "\n")] = 0;                              //trim cr/lf
 
     Chain.current = &Chain.word[0];

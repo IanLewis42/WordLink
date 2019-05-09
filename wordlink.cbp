@@ -18,7 +18,7 @@
 			<Target title="Release">
 				<Option output="wordlink" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
-				<Option type="1" />
+				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
@@ -42,7 +42,8 @@
 			<Add option="-static-libstdc++" />
 			<Add option="-static" />
 			<Add option="-lpthread" />
-			<Add option="-Wl,-Map=gs.map" />
+			<Add option="-Wl,-Map=wl.map" />
+			<Add option="-mwindows" />
 			<Add library="../TurboRaketti/AllegroDLLs/a5113_new/liballegro_monolith-static.a" />
 			<Add library="../TurboRaketti/AllegroDLLs/a5113_new/libvorbisfile.a" />
 			<Add library="../TurboRaketti/AllegroDLLs/a5113_new/libvorbis.a" />

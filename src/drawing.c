@@ -26,6 +26,8 @@
 
 #define BLANK_TILE 26
 
+ALLEGRO_BITMAP* info_bmp;
+
 void draw_background(void);
 void draw_buttons(void);
 void draw_coins(void);
@@ -42,7 +44,7 @@ void draw_screen(ScreenType screen, float scale)
     ALLEGRO_COLOR Black = al_map_rgba(0, 0, 0, 128);
     int w,h,i,j;
     int bgx,bgy,bgw,bgh;    //background
-    int x,y;                //temporary coords.
+    int x1,x,y;                //temporary coords.
     int letter_x,letter_y;
     char temp[5];
 
@@ -76,34 +78,65 @@ void draw_screen(ScreenType screen, float scale)
         case HOME:
             draw_background();
 
-            y = CHAIN_Y+TILE;
-            x = ((al_get_display_width(display)/2)*State.inv_scale )- 2*TILE;
+            al_scale_transform(&transform,1.5,1.5);
+            al_use_transform(&transform);
+
+            y = CHAIN_Y+TILE/2;
+            x1 = ((al_get_display_width(display)/2)*State.inv_scale )- 3*TILE;
+            x=x1/1.5;
+            y/=1.5;
 
             strncpy(temp,"word",5);
             for (i=0 ; i<4 ; i++)
             {
-                letter_x = ((temp[i] - 'a') % 5) * TILE;
-                letter_y = ((temp[i] - 'a') / 5) * TILE;
+                if (Timer[TIMER_HOME].value < Timer[TIMER_HOME].start_value-((i+1) *10))
+                {
+                    letter_x = ((temp[i] - 'a') % 5) * TILE;
+                    letter_y = ((temp[i] - 'a') / 5) * TILE;
+                }
+                else
+                {
+                    letter_x = 0;
+                    letter_y = 6 * TILE;
+                }
                 al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
                 x+=TILE;
             }
 
-            x = ((al_get_display_width(display)/2)*State.inv_scale )- 2*TILE;
+            //x = ((al_get_display_width(display)/2)*State.inv_scale )- 3*TILE;
+            x=x1/1.5;
             y+=TILE;
             strncpy(temp,"link",5);
             for (i=0 ; i<4 ; i++)
             {
-                letter_x = ((temp[i] - 'a') % 5) * TILE;
-                letter_y = ((temp[i] - 'a') / 5) * TILE;
+                if (Timer[TIMER_HOME].value < Timer[TIMER_HOME].start_value-((i+5) *10))
+                {
+                    letter_x = ((temp[i] - 'a') % 5) * TILE;
+                    letter_y = ((temp[i] - 'a') / 5) * TILE;
+                }
+                else
+                {
+                    letter_x = 0;
+                    letter_y = 6 * TILE;
+                }
                 al_draw_bitmap_region(alpha, letter_x, letter_y, TILE, TILE, x, y, 0);
                 x+=TILE;
             }
+            al_scale_transform(&transform,0.6666666,0.66666666);
+            al_use_transform(&transform);
 
             draw_coins();
             draw_buttons();
             draw_more_buttons();
         break;
+        case INFO:
+            draw_background();
 
+            al_draw_bitmap(info_bmp,0,0,0);
+
+            draw_coins();
+            draw_buttons();
+        break;
         case COLOURS:
             draw_background();
             switch(State.ColourItem)
@@ -326,7 +359,8 @@ void draw_buttons(void)
 void draw_more_buttons(void)
 {
     int i;
-    float x = BUTTON2_X;
+    //float x = BUTTON2_X;
+    float x = (al_get_display_width(display)/2)*State.inv_scale - TILE*1.0;
     float y = BUTTON2_Y;
     for (i=0 ; Buttons2[i].icon != NO_ICON ; i++) {
         al_draw_filled_circle(x+TILE/2,y+TILE/2,TILE/2,al_map_rgba(128,128,128,128));
@@ -390,7 +424,7 @@ void draw_timeout(void)
     int w = al_get_display_width(display)  * State.inv_scale;
     int h = al_get_display_height(display) * State.inv_scale;
 
-    al_draw_filled_rounded_rectangle(w/4,CHAIN_Y,3*w/4,CHAIN_Y+6*TILE,50,50,al_map_rgba(0,0,0,192));
+    al_draw_filled_rounded_rectangle(w/4,CHAIN_Y,3*w/4,CHAIN_Y+6*TILE,50,50,al_map_rgba(0,0,0,160));
 
     al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, CHAIN_Y+1*TILE, ALLEGRO_ALIGN_CENTRE, "TIME'S UP!");
     al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, CHAIN_Y+2*TILE, ALLEGRO_ALIGN_CENTRE, "You scored %d",State.score);
@@ -401,4 +435,28 @@ void draw_timeout(void)
     else
         al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, CHAIN_Y+3*TILE, ALLEGRO_ALIGN_CENTRE, "Highscore: %d",State.highscore);
 
+}
+
+void make_info_bitmap(void)
+{
+    char temp[100];
+    int w,h;
+    int y = CHAIN_Y;
+
+    w = al_get_display_width(display)*State.inv_scale;
+    h = al_get_display_height(display)*State.inv_scale;
+
+    info_bmp = al_create_bitmap(w, h*3);			//create a bitmap
+    al_set_target_bitmap(info_bmp);					//set it as the default target for all al_draw_ operations
+
+    al_clear_to_color(al_map_rgba(0,0,0,128));
+
+    ALLEGRO_FILE* infofile = al_fopen("info.txt","r");
+
+    while(al_fgets(infofile,temp,100))
+    {
+        al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, y, ALLEGRO_ALIGN_CENTRE, "%s",temp);
+        y += 60;
+    }
+    al_set_target_backbuffer(display);			//Put default target back
 }

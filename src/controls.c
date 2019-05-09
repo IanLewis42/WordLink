@@ -132,6 +132,7 @@ void handle_new_touch(float x, float y)
         case COLOURS:
             if (x > CHAIN_X && y < CHAIN_Y)
             {
+                al_play_sample_instance( misc_menu_inst);
                 if (x < SCREENX/2)
                     Command = CMD_BG;
                 else
@@ -148,7 +149,10 @@ void handle_new_touch(float x, float y)
         y=y/(TILE*1.1);
 
         if (y>=0 && y<=max_button)
+        {
             Command = Buttons[(int)y].command;
+            al_play_sample_instance( misc_menu_inst);
+        }
     }
 
     if(State.screen == HOME || State.timeout)
@@ -160,7 +164,10 @@ void handle_new_touch(float x, float y)
             x=x/(TILE*1.1);
 
             if (x>=0 && x<=max_button)
+            {
                 Command = Buttons2[(int)x].command;
+                al_play_sample_instance( misc_menu_inst);
+            }
         }
     }
 }
@@ -208,6 +215,7 @@ void handle_touch_end(float x, float y)
                         if (isindict(Chain.current->user,
                                      Chain.word_length))   //is the word in the dictionary?
                         {
+                            al_play_sample_instance( click_inst);
                             Chain.current->status = VALID;                        //yes, mark as good
                             strncpy(temp, Chain.current->user, Chain.word_length + 1);//take a copy
                             Chain.current++;                                      //and bump pointer
@@ -221,8 +229,10 @@ void handle_touch_end(float x, float y)
                                 }
 
                                 if (count == 1) {
+                                    al_play_sample_instance( positive_inst);
                                     Command = CMD_SUCCESS;
                                 } else {
+                                    al_play_sample_instance( negative_inst);
                                     post_message(msg_chainfail);
                                     start_timer(TIMER_ERROR);                   //too many differences
                                     Chain.current--;                            //bump pointer back
@@ -236,6 +246,7 @@ void handle_touch_end(float x, float y)
                             }
                         } else                                                    //not in dictionary
                         {
+                            al_play_sample_instance( negative_inst);
                             post_message(msg_notindict);
                             start_timer(TIMER_ERROR);                                   //so flag error
                         }
@@ -250,6 +261,7 @@ void handle_touch_end(float x, float y)
             {
                 if (x > CHAIN_X && (x < CHAIN_X + 900 + 270) && y > TILE/2)
                 {
+                    al_play_sample_instance( misc_menu_inst);
                     switch (State.ColourItem)
                     {
                     case BG:
@@ -266,7 +278,7 @@ void handle_touch_end(float x, float y)
                             }
                             else if (State.coins >= 100)
                             {
-                                State.coins_down = 100;
+                                State.coins_down += 100;
                                 State.coins -= 100;
                                 State.bgs[(int)(i/32)] |= (1<<i%32);
                                 State.bg = i;
@@ -297,7 +309,7 @@ void handle_touch_end(float x, float y)
                             }
                             else if (State.coins >= 100)
                             {
-                                State.coins_down = 100;
+                                State.coins_down += 100;
                                 State.coins -= 100;
                                 State.alphas[(int)(i/32)] |= (1<<i%32);
                                 State.alpha = i;
