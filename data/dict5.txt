@@ -634,6 +634,7 @@ dames
 damns
 damps
 dandy
+danes
 dared
 dares
 darns
@@ -789,6 +790,7 @@ dykes
 eager
 eared
 earls
+early
 earns
 eased
 easel
@@ -985,10 +987,12 @@ foxed
 foxes
 frail
 frame
+frank
 frays
 freak
 freed
 frees
+fresh
 freud
 fried
 fries
@@ -1104,11 +1108,13 @@ gower
 gowns
 grabs
 grade
+grads
 graft
 grail
 grain
 grams
 grand
+grans
 grape
 grass
 grate
@@ -1249,9 +1255,11 @@ holds
 holed
 holes
 holey
+holly
 homed
 homer
 homes
+hones
 honey
 honks
 hooch
@@ -1410,6 +1418,7 @@ layed
 layer
 lazed
 lazes
+leach
 leads
 leafs
 leafy
@@ -1603,6 +1612,7 @@ mewed
 miffs
 might
 milch
+miles
 milks
 milky
 mills
@@ -1809,6 +1819,7 @@ panty
 paper
 parch
 pared
+pares
 parks
 parry
 parse
@@ -1962,6 +1973,7 @@ prise
 prize
 probe
 prods
+proms
 prone
 prong
 props
@@ -2105,6 +2117,7 @@ roast
 robed
 robes
 rocks
+rocky
 roles
 rolls
 romps
@@ -2343,7 +2356,6 @@ skull
 skunk
 slabs
 slack
-slags
 slain
 slake
 slams
@@ -2370,6 +2382,7 @@ sling
 slink
 slips
 slits
+slobs
 slogs
 sloop
 slope
@@ -2386,7 +2399,6 @@ slunk
 slurp
 slurs
 slush
-sluts
 slyer
 smack
 small
@@ -2454,6 +2466,7 @@ sower
 space
 spade
 spain
+spams
 spank
 spans
 spare

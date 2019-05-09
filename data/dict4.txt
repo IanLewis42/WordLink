@@ -375,6 +375,7 @@ dare
 dark
 darn
 dart
+dash
 data
 date
 dave
@@ -411,6 +412,7 @@ dies
 diet
 digs
 dike
+dill
 dime
 dims
 dine
@@ -785,6 +787,7 @@ hens
 herb
 herd
 here
+hero
 hers
 hess
 hewn
@@ -958,6 +961,7 @@ lamb
 lame
 lamp
 land
+lane
 lank
 laos
 laps
@@ -994,6 +998,7 @@ less
 lest
 lets
 lewd
+liar
 lice
 lick
 lido
@@ -1057,6 +1062,7 @@ lots
 loud
 lout
 love
+lows
 luck
 lugs
 lull
@@ -1110,6 +1116,7 @@ meed
 meek
 meet
 melt
+meme
 memo
 mend
 ment
@@ -1427,7 +1434,6 @@ rand
 rang
 rank
 rant
-rape
 raps
 rapt
 rare
@@ -1463,6 +1469,7 @@ rife
 rift
 riga
 rigs
+rile
 rims
 rind
 ring
@@ -1495,6 +1502,7 @@ room
 root
 rope
 ropy
+rose
 rosy
 rota
 rote
