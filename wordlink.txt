@@ -106,6 +106,16 @@ to do
   - remember count!
   - scan dict by ptr += wl+1
   - spot dict end by count.
+  - WORKS! Much quicker, but new_word still a little slow;
+    Does 4 passes through dict:
+     count
+     copy to ram
+     pick random word
+     find seek points.[seek points only used by isindict(), in turn only used to check user word, i.e. not very often.....
+       so could make isindict() use ramdict, and then prob don't need seek points.....
+     pick random from ram dict.
+    *count once at startup (4 & 5)
+    copy once at startup? (4&5 - need to swap pointers on length selection)
 - Segoe MDL2 Assets has light bulb, setting cog (EA80, E713)
 
 google material design light bulb e90f, settings e8b8 back e15e
@@ -113,6 +123,49 @@ google material design light bulb e90f, settings e8b8 back e15e
 hmmmm.... icons drawn directly as png? i.e. not via pov......
 white partly transparent circle, black icon for solve (light bulb) back (arrow) settings (cog) just black icon for thinking (brain)
 
+...maybe better in pov....
+
+Settings icon??
+
+Home, big play icon, long thin button below for play timed.
+  chain??
+
+colours, menu at top for backgrounds / tiles
+  show background, borders, change on tap, unlock on tap.
+
 Different approach to speedup: don't do it on the fly, write some (PC) code to make all possible lists from dict,
   store first/last words in file (or entire chain?) entire chain would allow hints. 
   No need for separators, 4x4 chain = 16 bytes, 5x5 = 25
+
+Letters slow to load (bigger files, more complicated decompression algorithm??)
+SO:
+  - restrict number (make many with each pattern, select few of each)
+  - load at startup 
+  - only load unlocked (load new when unlocking....)
+  - al_file_exists??
+
+Info / instructions:
+
+data structures:
+  ALLEGRO_BITMAP *alpha;	//global/extern current
+  ALLEGRO_BITMAP *alphas[100];  //global/extern all (populated with purchased ones)
+  
+  StateType State;
+        int bg;			
+        int alpha;		//index into ALLEGRO_BITMAP *alphas[100] / bit ref into long int alphas[4];
+        long int bgs[4];
+    	long int alphas[4];	//bit mask for enabled/purchased.
+
+TBD:
+* Home screen
+* Timed play
+* pretty up messages
+* store selected bg/tiles
+* Tweak buttons (fewer on home screen?)
+* dictionary additions
+* icon
+* adaptive icon
+- Info screen improve
+- nicer backgrounds
+- more sounds
+
