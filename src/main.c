@@ -36,7 +36,7 @@
 #include "wordlink.h"
 
 #define NAME "WordLink"
-#define VERSION "0.1"
+#define VERSION "1.2"
 
 //#define SCREENX 800 //540
 //#define SCREENY 400 //960
