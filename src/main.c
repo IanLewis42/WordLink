@@ -36,7 +36,7 @@
 #include "wordlink.h"
 
 #define NAME "WordLink"
-#define VERSION "1.2"
+#define VERSION "1.5"	//Corrected post android update. Think  it's only used for the logfile anyway....
 
 //#define SCREENX 800 //540
 //#define SCREENY 400 //960

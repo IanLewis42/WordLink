@@ -165,7 +165,7 @@ TBD:
 * dictionary additions
 * icon
 * adaptive icon
+* nicer backgrounds
 - Info screen improve
-- nicer backgrounds
-- more sounds
+
 

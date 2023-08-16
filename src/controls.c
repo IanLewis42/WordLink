@@ -160,7 +160,8 @@ void handle_new_touch(float x, float y)
         for (max_button=0 ; Buttons2[max_button].command != NO_COMMAND; max_button++);
         if ((y > BUTTON2_Y) && (y < (BUTTON2_Y + TILE)))
         {
-            x-=BUTTON2_X;
+            //x-=BUTTON2_X;
+            x -= (al_get_display_width(display)/2)*State.inv_scale - TILE*1.0;
             x=x/(TILE*1.1);
 
             if (x>=0 && x<=max_button)
@@ -259,14 +260,14 @@ void handle_touch_end(float x, float y)
         case COLOURS:   //check for selection
             if (Mouse.move < 10)
             {
-                if (x > CHAIN_X && (x < CHAIN_X + 900 + 270) && y > TILE/2)
+                if (x > CHAIN_X && (x < CHAIN_X + 5*250 + 220) && y > TILE/2)
                 {
                     al_play_sample_instance( misc_menu_inst);
                     switch (State.ColourItem)
                     {
                     case BG:
-                        x = (int)((x-CHAIN_X)/300);
-                        y = ((int)((y-CHAIN_Y-Mouse.scrollb)/300))*4;
+                        x = (int)((x-CHAIN_X)/250);
+                        y = ((int)((y-CHAIN_Y-Mouse.scrollb)/250))*6;
                         i = x + y;
                         if (i >= 0 && i <= State.max_bgs)
                         {

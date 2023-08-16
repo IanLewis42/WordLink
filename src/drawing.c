@@ -28,7 +28,7 @@
 
 ALLEGRO_BITMAP* info_bmp;
 
-void draw_background(void);
+void draw_background(ALLEGRO_TRANSFORM *transform);
 void draw_buttons(void);
 void draw_coins(void);
 void draw_message(void);
@@ -76,7 +76,7 @@ void draw_screen(ScreenType screen, float scale)
         break;
 
         case HOME:
-            draw_background();
+            draw_background(&transform);
 
             al_scale_transform(&transform,1.5,1.5);
             al_use_transform(&transform);
@@ -130,7 +130,7 @@ void draw_screen(ScreenType screen, float scale)
             draw_more_buttons();
         break;
         case INFO:
-            draw_background();
+            draw_background(&transform);
 
             al_draw_bitmap(info_bmp,0,0,0);
 
@@ -138,28 +138,28 @@ void draw_screen(ScreenType screen, float scale)
             draw_buttons();
         break;
         case COLOURS:
-            draw_background();
+            draw_background(&transform);
             switch(State.ColourItem)
             {
             case BG:
                 for (i=0 ; i<State.max_bgs ; i++)
                 {
-                    x = CHAIN_X+300*(i%4);
-                    y = CHAIN_Y+300*(i/4);
+                    x = CHAIN_X+250*(i%6);
+                    y = CHAIN_Y+250*(i/6);
 
                     y+=Mouse.scrollb;
 
                     if (backgrounds[i] != NULL)
                     {
                         int ybox = al_get_bitmap_height(backgrounds[i])+15;
-                        if (ybox > 270)
-                            ybox = 270;
-                        al_draw_filled_rounded_rectangle(x-15,y-15,x+270,y+ybox,10,10,(State.bg==i)?Red:Black);
-                        al_draw_bitmap_region(backgrounds[i],0,0,255,255,x,y,0);
+                        if (ybox > 220)
+                            ybox = 220;
+                        al_draw_filled_rounded_rectangle(x-15,y-15,x+220,y+ybox,10,10,(State.bg==i)?Red:Black);
+                        al_draw_bitmap_region(backgrounds[i],0,0,205,205,x,y,0);
                     }
                     else
                     {
-                        al_draw_filled_rectangle(x-15,y-15,x+270,y+270,al_map_rgba(128,128,128,128));
+                        al_draw_filled_rectangle(x-15,y-15,x+250,y+250,al_map_rgba(128,128,128,128));
                         al_draw_bitmap_region(icons,ICON_LOCK*TILE,0,TILE,TILE,x+50,y+50,0);
                     }
                 }
@@ -194,7 +194,7 @@ void draw_screen(ScreenType screen, float scale)
         break;
 
         case GAME:
-            draw_background();
+            draw_background(&transform);
 
             //al_hold_bitmap_drawing(TRUE);
 
@@ -320,11 +320,14 @@ void draw_screen(ScreenType screen, float scale)
     return;
 }
 
-void draw_background(void)
+void draw_background(ALLEGRO_TRANSFORM *transform_ptr)
 {
     int bgx,bgy, bgw, bgh, w , h;
 
     al_clear_to_color(al_map_rgb(0, 0, 0));
+
+    al_scale_transform(transform_ptr,1.5,1.5);
+    al_use_transform(transform_ptr);
 
 	w = al_get_display_width(display);
     h = al_get_display_height(display);
@@ -341,6 +344,9 @@ void draw_background(void)
             al_draw_bitmap(background,bgx,bgy,0);
         }
     }
+
+    al_scale_transform(transform_ptr,0.6666666666,0.6666666666);
+    al_use_transform(transform_ptr);
 }
 
 
